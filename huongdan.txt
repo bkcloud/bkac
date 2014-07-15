@@ -1,0 +1,64 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+A. Hướng dẫn cài đặt
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Về cơ bản, để cài đặt BKAC, cần tiến hành các bước như sau:
+ 1. Cài đặt pfSense 2.1.2
+ 2. Patch các thay đổi mã nguồn để có phiên bản BKAC
+------------------------------------- 
+1.Cài đặt pfSense 2.1.2
+-------------------------------------
+ - Sử dụng trình duyệt web và mở URL: http://pfsense.org
+   Bấm vào nút Download ở góc trên bên phải của trang web. Sau đó, tìm và bấm
+   vào link version page
+
+ - Download file iso hoặc img của pfSense phiên bản 2.1.2. Nếu muốn cài đặt
+   qua đĩa CD, sử dụng file iso, ngược lại, nếu muốn cài đặt qua USB Stick, sử
+   dụng file img.
+
+ - Quá trình cài đặt pfSense,  xem chi tiết trong file
+   /huongdan/HuongdanChitiet.docx
+  
+ - Cài đặt và cấu hình giao diện mạng WAN, LAN. Chú ý, cần cấu hình LAN đúng,
+   để giao diện LAN hoạt động được. Các file patch sẽ cần được copy qua giao 
+   diện này. Cách cấu hình giao diện LAN, xem chi tiết trong file
+   /huongdan/HuongdanChitiet.docx
+
+ - Bật dịch vụ SSHD trên giao diện LAN. xem chi tiết trong file
+   /huongdan/HuongdanChitiet.docx
+
+------------------------------------- 
+2.Patch các thay đổi mã nguồn để có phiên bản BKAC
+-------------------------------------
+ - Các file patch có thể sự sinh ra trên git, thông qua lệnh 
+      git format-patch 17f27b099b6fded5879b76ecb0237093a3a5133e
+   hoặc đã có sẵn trên git tại branch có tên huong-dan và năm trong thư mục
+   huongdan
+
+ - Sử dụng SSH để truy cập vào máy tính cài đặt pfSense với tài khoản mặc định
+   root/pfSense
+
+ - Copy tất cả các file patch vào thư mục / của máy tính pfSense.
+   Ví dụ, sau copy xong, sẽ có các file như sau
+   /0001-Add-b-sung-th-m-theme-giao-di-n-BKAC-v-i.patch
+   /0002-Add-Th-m-2-file-po-ch-a-ng-n-ng-ti-ng-Vi-t.patch
+   ........................
+
+ - Thực hiện patch -p1 với tất cả các file patch nói trên
+   patch -p1 < tên_file_patch
+   Ví dụ, gõ lệnh patch như sau
+   # patch -p1 < /0001-Add-b-sung-th-m-theme-giao-di-n-BKAC-v-i.patch
+   # patch -p1 < /0002-Add-Th-m-2-file-po-ch-a-ng-n-ng-ti-ng-Vi-t.patch
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+B. Hướng dẫn cấu hình ngôn ngữ vào giao diện BKAC
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ - Đăng nhập vào web admin của pfSense
+  
+ - Vào mục System/General Setup/. Trong phần Language chọn "Tieng Viet", trong
+   phần Theme, chọn BKAC.
+
+ - Bấm nút Save
+
+
+
