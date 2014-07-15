@@ -36,8 +36,8 @@
 
 ##|+PRIV
 ##|*IDENT=page-services-captiveportal-editallowedhostnames
-##|*NAME=Services: Captive portal: Edit Allowed Hostnames page
-##|*DESCR=Allow access to the 'Services: Captive portal: Edit Allowed Hostnames' page.
+##|*NAME=Services: Captive portal: Edit Allowed IPs page
+##|*DESCR=Allow access to the 'Services: Captive portal: Edit Allowed IPs' page.
 ##|*MATCH=services_captiveportal_hostname_edit.php*
 ##|-PRIV
 
@@ -99,7 +99,7 @@ if ($_POST) {
 	$reqdfields = explode(" ", "hostname");
 	$reqdfieldsn = array(gettext("Allowed Hostname"));
 	
-	do_input_validation($_POST, $reqdfields, $reqdfieldsn, $input_errors);
+	do_input_validation($_POST, $reqdfields, $reqdfieldsn, &$input_errors);
 	
 	if (($_POST['hostname'] && !is_hostname($_POST['hostname']))) 
 		$input_errors[] = sprintf(gettext("A valid Hostname must be specified. [%s]"), $_POST['hostname']);
@@ -140,8 +140,7 @@ if ($_POST) {
 
 		$rules = captiveportal_allowedhostname_configure();
 		@file_put_contents("{$g['tmp_path']}/hostname_rules", $rules);
-		$cpzoneid = $a_cp[$cpzone]['zoneid'];
-		mwexec("/sbin/ipfw -x {$cpzoneid} {$g['tmp_path']}/hostname_rules");
+		mwexec("/sbin/ipfw -x {$cpzone} {$g['tmp_path']}/hostname_rules");
 		unset($rules);
 		
 		header("Location: services_captiveportal_hostname.php?zone={$cpzone}");

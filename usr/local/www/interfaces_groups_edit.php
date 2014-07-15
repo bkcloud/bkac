@@ -31,9 +31,9 @@
 */
 
 ##|+PRIV
-##|*IDENT=page-interfaces-groups-edit
+##|*IDENT=page-interfacess-groups
 ##|*NAME=Interfaces: Groups: Edit page
-##|*DESCR=Allow access to the 'Interfaces: Groups: Edit' page.
+##|*DESCR=Edit Interface groups
 ##|*MATCH=interfaces_groups_edit.php*
 ##|-PRIV
 

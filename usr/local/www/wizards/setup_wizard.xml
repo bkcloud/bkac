@@ -138,6 +138,8 @@
 			<description>Enter the hostname (FQDN) of the time server.</description>
 			<type>input</type>
 			<bindstofield>system->timeservers</bindstofield>
+			<validate>^[a-z0-9.|-]+$</validate>
+			<message>Invalid Time Server Field</message>
 		</field>
 		<field>
 			<name>Timezone</name>
@@ -151,11 +153,9 @@
 	</fields>
 	<stepsubmitphpaction>
 		<![CDATA[
-		foreach (explode(' ', $_POST['timeserverhostname']) as $ts) {
-			if (!is_domain($ts)) {
-				print_info_box_np(gettext("NTP Time Server names may only contain the characters a-z, 0-9, '-' and '.'. Entries may be separated by spaces. Please press back in your browser window and correct."));
-				die;
-			}
+		if(!empty($_POST['timeserverhostname']) && !(is_hostname($_POST['timeserverhostname']) || is_ipaddr($_POST['timeserverhostname']))) {
+			print_info_box_np("Invalid Time Server. Please press back in your browser window and correct.");
+			die;
 		}
 		]]>
 	</stepsubmitphpaction>
@@ -409,17 +409,9 @@
 			print_info_box_np("Invalid MAC Address. Please press back in your browser window and correct.");
 			die;
 		}
-		if(!empty($_POST['ipaddress']) && ($_POST['selectedtype'] == "Static")) {
-			if (!is_ipaddr($_POST['ipaddress'])) {
-				print_info_box_np("Invalid WAN IP Address. Please press back in your browser window and correct.");
-				die;
-			}
-			if ($_POST['subnetmask'] < 31 &&
-			    ($_POST['ipaddress'] == gen_subnet($_POST['ipaddress'], $_POST['subnetmask']) ||
-			     $_POST['ipaddress'] == gen_subnet_max($_POST['ipaddress'], $_POST['subnetmask']))) {
-				print_info_box_np("Invalid WAN IP Address. Please press back in your browser window and correct.");
-				die;
-			}
+		if(!empty($_POST['ipaddress']) && ($_POST['selectedtype'] == "Static") && (!is_ipaddr($_POST['ipaddress']))) {
+			print_info_box_np("Invalid WAN IP Address. Please press back in your browser window and correct.");
+			die;
 		}
 		if(!empty($_POST['dhcphostname']) && !is_hostname($_POST['dhcphostname'])) {
 			print_info_box_np("Invalid DHCP Hostname. Please press back in your browser window and correct.");
@@ -514,12 +506,6 @@
 	<stepsubmitphpaction>
 		<![CDATA[
 		if(empty($_POST['lanipaddress']) || !is_ipaddr($_POST['lanipaddress'])) {
-			print_info_box_np("Invalid LAN IP Address. Please press back in your browser window and correct.");
-			die;
-		}
-		if ($_POST['subnetmask'] < 31 &&
-		    ($_POST['lanipaddress'] == gen_subnet($_POST['lanipaddress'], $_POST['subnetmask']) ||
-		     $_POST['lanipaddress'] == gen_subnet_max($_POST['lanipaddress'], $_POST['subnetmask']))) {
 			print_info_box_np("Invalid LAN IP Address. Please press back in your browser window and correct.");
 			die;
 		}

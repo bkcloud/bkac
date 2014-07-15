@@ -74,7 +74,7 @@ if ($_POST) {
 	$reqdfields = explode(" ", "if tag");
 	$reqdfieldsn = array(gettext("Parent interface"),gettext("VLAN tag"));
 
-	do_input_validation($_POST, $reqdfields, $reqdfieldsn, $input_errors);
+	do_input_validation($_POST, $reqdfields, $reqdfieldsn, &$input_errors);
 
 	if ($_POST['tag'] && (!is_numericint($_POST['tag']) || ($_POST['tag'] < '1') || ($_POST['tag'] > '4094'))) {
 		$input_errors[] = gettext("The VLAN tag must be an integer between 1 and 4094.");
@@ -83,12 +83,6 @@ if ($_POST) {
 	if (!does_interface_exist($_POST['if']))
 		$input_errors[] = gettext("Interface supplied as parent is invalid");
 
-	if (isset($id)) {
-		if ($_POST['tag'] && $_POST['tag'] != $a_vlans[$id]['tag']) {
-			if (!empty($a_vlans[$id]['vlanif']) && convert_real_interface_to_friendly_interface_name($a_vlans[$id]['vlanif']) != NULL)
-				$input_errors[] = gettext("Interface is assigned and you cannot change the VLAN tag while assigned.");
-		}
-	}
 	foreach ($a_vlans as $vlan) {
 		if (isset($id) && ($a_vlans[$id]) && ($a_vlans[$id] === $vlan))
 			continue;

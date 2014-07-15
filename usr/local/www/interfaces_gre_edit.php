@@ -73,7 +73,7 @@ if ($_POST) {
 	$reqdfields = explode(" ", "if tunnel-remote-addr tunnel-remote-net tunnel-local-addr");
 	$reqdfieldsn = array(gettext("Parent interface"),gettext("Local address"),gettext("Remote tunnel address"),gettext("Remote tunnel network"), gettext("Local tunnel address"));
 
-	do_input_validation($_POST, $reqdfields, $reqdfieldsn, $input_errors);
+	do_input_validation($_POST, $reqdfields, $reqdfieldsn, &$input_errors);
 
 	if ((!is_ipaddr($_POST['tunnel-local-addr'])) || (!is_ipaddr($_POST['tunnel-remote-addr'])) ||
 			(!is_ipaddr($_POST['remote-addr']))) {
@@ -131,7 +131,6 @@ include("head.inc");
 ?>
 
 <body link="#0000CC" vlink="#0000CC" alink="#0000CC">
-<script type="text/javascript" src="/javascript/jquery.ipv4v6ify.js"></script>
 <?php include("fbegin.inc"); ?>
 <?php if ($input_errors) print_input_errors($input_errors); ?>
             <form action="interfaces_gre_edit.php" method="post" name="iform" id="iform">
@@ -176,8 +175,8 @@ include("head.inc");
 				<tr>
                   <td valign="top" class="vncellreq"><?=gettext("GRE tunnel remote address ");?></td>
                   <td class="vtable">
-                    <input name="tunnel-remote-addr" type="text" class="formfld unknown ipv4v6" id="tunnel-remote-addr" size="16" value="<?=htmlspecialchars($pconfig['tunnel-remote-addr']);?>" />
-                    <select name="tunnel-remote-net" class="formselect ipv4v6" id="tunnel-remote-net">
+                    <input name="tunnel-remote-addr" type="text" class="formfld unknown" id="tunnel-remote-addr" size="16" value="<?=htmlspecialchars($pconfig['tunnel-remote-addr']);?>" />
+                    <select name="tunnel-remote-net" class="formselect" id="tunnel-remote-net">
                                         <?php
                                         for ($i = 128; $i > 0; $i--) {
 						echo "<option value=\"{$i}\"";

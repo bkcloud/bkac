@@ -70,8 +70,6 @@ if (isset($id) && isset($a_dyndns[$id])) {
 	$pconfig['interface'] = $a_dyndns[$id]['interface'];
 	$pconfig['wildcard'] = isset($a_dyndns[$id]['wildcard']);
 	$pconfig['verboselog'] = isset($a_dyndns[$id]['verboselog']);
-	$pconfig['curl_ipresolve_v4'] = isset($a_dyndns[$id]['curl_ipresolve_v4']);
-	$pconfig['curl_ssl_verifypeer'] = isset($a_dyndns[$id]['curl_ssl_verifypeer']);
 	$pconfig['zoneid'] = $a_dyndns[$id]['zoneid'];
 	$pconfig['ttl'] = $a_dyndns[$id]['ttl'];
 	$pconfig['updateurl'] = $a_dyndns[$id]['updateurl'];
@@ -105,7 +103,7 @@ if ($_POST) {
 		$reqdfieldsn[] = gettext("Update URL");
  	}
 
-	do_input_validation($_POST, $reqdfields, $reqdfieldsn, $input_errors);
+	do_input_validation($_POST, $reqdfields, $reqdfieldsn, &$input_errors);
 
 	if (($_POST['host'] && !is_domain($_POST['host'])))
 		$input_errors[] = gettext("The Hostname contains invalid characters.");
@@ -123,8 +121,6 @@ if ($_POST) {
 		$dyndns['mx'] = $_POST['mx'];
 		$dyndns['wildcard'] = $_POST['wildcard'] ? true : false;
 		$dyndns['verboselog'] = $_POST['verboselog'] ? true : false;
-		$dyndns['curl_ipresolve_v4'] = $_POST['curl_ipresolve_v4'] ? true : false;
-		$dyndns['curl_ssl_verifypeer'] = $_POST['curl_ssl_verifypeer'] ? true : false;
 		/* In this place enable means disabled */
 		if ($_POST['enable'])
 			unset($dyndns['enable']);
@@ -182,7 +178,6 @@ function _onTypeChange(type){
 			document.getElementById("_resulttr").style.display = '';
 			document.getElementById("_urltr").style.display = '';
 			document.getElementById("_requestiftr").style.display = '';
-			document.getElementById("_curloptions").style.display = '';
 			document.getElementById("_hostnametr").style.display = 'none';
 			document.getElementById("_mxtr").style.display = 'none';
 			document.getElementById("_wildcardtr").style.display = 'none';
@@ -193,7 +188,6 @@ function _onTypeChange(type){
 			document.getElementById("_resulttr").style.display = 'none';
 			document.getElementById("_urltr").style.display = 'none';
 			document.getElementById("_requestiftr").style.display = 'none';
-			document.getElementById("_curloptions").style.display = 'none';
 			document.getElementById("_hostnametr").style.display = '';
 			document.getElementById("_mxtr").style.display = '';
 			document.getElementById("_wildcardtr").style.display = '';
@@ -204,7 +198,6 @@ function _onTypeChange(type){
 			document.getElementById("_resulttr").style.display = 'none';
 			document.getElementById("_urltr").style.display = 'none';
 			document.getElementById("_requestiftr").style.display = 'none';
-			document.getElementById("_curloptions").style.display = 'none';
 			document.getElementById("_hostnametr").style.display = '';
 			document.getElementById("_mxtr").style.display = '';
 			document.getElementById("_wildcardtr").style.display = '';
@@ -254,7 +247,6 @@ function _onTypeChange(type){
 							echo "selected";
 						echo ">{$ifdesc}</option>\n";
 					}
-					unset($iflist);
 					$grouplist = return_gateway_groups_array();
 				   	foreach ($grouplist as $name => $group) {
 						echo "<option value=\"{$name}\"";
@@ -262,34 +254,19 @@ function _onTypeChange(type){
 							echo "selected";
 						echo ">GW Group {$name}</option>\n";
 					}
-					unset($grouplist);
 				?>
 					</select>
 					</td>
 					</td>
 				</tr>	
 				<tr id="_requestiftr">
-					<td width="22%" valign="top" class="vncellreq"><?=gettext("Interface to send update from");?></td>  
-					<td width="78%" class="vtable">
-					<select name="requestif" class="formselect" id="requestif">
-				<?php
-					$iflist = get_configured_interface_with_descr();					
-					foreach ($iflist as $if => $ifdesc) {
-						echo "<option value=\"{$if}\"";
-						if ($pconfig['requestif'] == $if)
-							echo "selected";
-						echo ">{$ifdesc}</option>\n";
-					}
-					unset($iflist);
-					$grouplist = return_gateway_groups_array();
-					foreach ($grouplist as $name => $group) {
-						echo "<option value=\"{$name}\"";
-						if ($pconfig['requestif'] == $name)
-							echo "selected";
-						echo ">GW Group {$name}</option>\n";
-					}
-					unset($grouplist);
-				?>
+				   <td width="22%" valign="top" class="vncellreq"><?=gettext("Interface to send update from");?></td>  
+				   <td width="78%" class="vtable">
+				   <select name="requestif" class="formselect" id="requestif">
+				   <?php $iflist = get_configured_interface_with_descr();
+				   		foreach ($iflist as $if => $ifdesc):?>
+							<option value="<?=$if;?>" <?php if ($pconfig['requestif'] == $if) echo "selected";?>><?=$ifdesc;?></option>
+					<?php endforeach; ?>
 					</select>
 					<br/><?= gettext("Note: This is almost always the same as the Interface to Monitor.");?>
 					</td>
@@ -329,15 +306,6 @@ function _onTypeChange(type){
                   <td width="78%" class="vtable">
                     <input name="verboselog" type="checkbox" id="verboselog" value="yes" <?php if ($pconfig['verboselog']) echo "checked"; ?>>
                     <?=gettext("Enable ");?><?=gettext("verbose logging"); ?></td>
-				</tr>
-				<tr id="_curloptions">
-                  <td width="22%" valign="top" class="vncell"><?=gettext("CURL options"); ?></td>
-                  <td width="78%" class="vtable">
-                    <input name="curl_ipresolve_v4" type="checkbox" id="curl_ipresolve_v4" value="yes" <?php if ($pconfig['curl_ipresolve_v4']) echo "checked"; ?>>
-                    <?=gettext("Force IPv4 resolving"); ?><br/>
-					<input name="curl_ssl_verifypeer" type="checkbox" id="curl_ssl_verifypeer" value="yes" <?php if ($pconfig['curl_ssl_verifypeer']) echo "checked"; ?>>
-                    <?=gettext("Verify SSL peer"); ?>
-				  </td>
 				</tr>
                 <tr id="_usernametr">
                   <td width="22%" valign="top" class="vncellreq"><?=gettext("Username");?></td>

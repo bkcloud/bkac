@@ -45,7 +45,8 @@ require_once("filter.inc");
 require_once("shaper.inc");
 
 if($_GET['reset'] <> "") {
-	mwexec("/usr/bin/killall -9 pfctl");
+	/* XXX: Huh, why are we killing php? */
+	mwexec("/usr/bin/killall -9 pfctl php");
 	exit;
 }
 

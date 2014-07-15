@@ -40,7 +40,7 @@
 ##|*IDENT=page-system-advanced-firewall
 ##|*NAME=System: Advanced: Firewall and NAT page
 ##|*DESCR=Allow access to the 'System: Advanced: Firewall and NAT' page.
-##|*MATCH=system_advanced_firewall.php*
+##|*MATCH=system_advanced.php*
 ##|-PRIV
 
 require("guiconfig.inc");
@@ -59,7 +59,7 @@ $pconfig['adaptiveend'] = $config['system']['adaptiveend'];
 $pconfig['maximumstates'] = $config['system']['maximumstates'];
 $pconfig['aliasesresolveinterval'] = $config['system']['aliasesresolveinterval'];
 $old_aliasesresolveinterval = $config['system']['aliasesresolveinterval'];
-$pconfig['checkaliasesurlcert'] = isset($config['system']['checkaliasesurlcert']);
+$pconfig['maximumtables'] = $config['system']['maximumtables'];
 $pconfig['maximumtableentries'] = $config['system']['maximumtableentries'];
 $pconfig['disablereplyto'] = isset($config['system']['disablereplyto']);
 $pconfig['disablenegate'] = isset($config['system']['disablenegate']);
@@ -91,6 +91,9 @@ if ($_POST) {
 	}
 	if ($_POST['aliasesresolveinterval'] && !is_numericint($_POST['aliasesresolveinterval'])) {
 		$input_errors[] = gettext("The Aliases Hostname Resolve Interval value must be an integer.");
+	}
+	if ($_POST['maximumtables'] && !is_numericint($_POST['maximumtables'])) {
+		$input_errors[] = gettext("The Firewall Maximum Tables value must be an integer.");
 	}
 	if ($_POST['maximumtableentries'] && !is_numericint($_POST['maximumtableentries'])) {
 		$input_errors[] = gettext("The Firewall Maximum Table Entries value must be an integer.");
@@ -140,14 +143,10 @@ if ($_POST) {
 		else
 			unset($config['system']['adaptivestart']);
 
-		if ($_POST['checkaliasesurlcert'] == "yes")
-			$config['system']['checkaliasesurlcert'] = true;
-		else
-			unset($config['system']['checkaliasesurlcert']);
-
 		$config['system']['optimization'] = $_POST['optimization'];
 		$config['system']['maximumstates'] = $_POST['maximumstates'];
 		$config['system']['aliasesresolveinterval'] = $_POST['aliasesresolveinterval'];
+		$config['system']['maximumtables'] = $_POST['maximumtables'];
 		$config['system']['maximumtableentries'] = $_POST['maximumtableentries'];
 
 		if($_POST['natreflection'] == "proxy") {
@@ -380,6 +379,22 @@ function update_description(itemnum) {
 								</td>
 							</tr>
 							<tr>
+								<td width="22%" valign="top" class="vncell"><?=gettext("Firewall Maximum Tables");?></td>
+								<td width="78%" class="vtable">
+									<input name="maximumtables" type="text" id="maximumtables" value="<?php echo $pconfig['maximumtables']; ?>" />
+									<br/>
+									<strong><?=gettext("Maximum number of tables for systems such as aliases, sshlockout, snort, etc, combined.");?></strong>
+									<br/><?php echo gettext("This is the actual number of tables, not the number of entries inside the tables (see below)");?>
+									<br/>
+									<span class="vexpl">
+										<?=gettext("Note:  Leave this blank for the default.");?>
+										<?php if (empty($pconfig['maximumtables'])): ?>
+											<?= gettext("On your system the default size is:");?> <?= pfsense_default_tables_size(); ?>
+										<?php endif; ?>
+									</span>
+								</td>
+							</tr>
+							<tr>
 								<td width="22%" valign="top" class="vncell"><?=gettext("Firewall Maximum Table Entries");?></td>
 								<td width="78%" class="vtable">
 									<input name="maximumtableentries" type="text" id="maximumtableentries" value="<?php echo $pconfig['maximumtableentries']; ?>" />
@@ -445,16 +460,6 @@ function update_description(itemnum) {
 									<strong><?=gettext("Interval, in seconds, that will be used to resolve hostnames configured on aliases.");?></strong>
 									<br/>
 									<span class="vexpl"><?=gettext("Note:  Leave this blank for the default (300s).");?></span>
-								</td>
-							</tr>
-							<tr>
-							<td width="22%" valign="top" class="vncell"><?=gettext("Check certificate of aliases URLs");?></td>
-								<td width="78%" class="vtable">
-									<input name="checkaliasesurlcert" type="checkbox" id="checkaliasesurlcert" value="yes" <?php if ($pconfig['checkaliasesurlcert']) echo "checked=\"checked\""; ?> />
-									<strong><?=gettext("Verify HTTPS certificates when downloading alias URLs");?></strong>
-									<br />
-									<?=gettext("Make sure the certificate is valid for all HTTPS addresses on aliases. If it's not valid or is revoked, do not download it.");?>
-									<br />
 								</td>
 							</tr>
 							<tr>

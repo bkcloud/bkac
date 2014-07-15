@@ -32,9 +32,9 @@
 */
 
 ##|+PRIV
-##|*IDENT=page-interfaces-lagg-edit
+##|*IDENT=page-interfacess-lagg
 ##|*NAME=Interfaces: LAGG: Edit page
-##|*DESCR=Allow access to the 'Interfaces: LAGG: Edit' page.
+##|*DESCR=Edit Interface LAGG
 ##|*MATCH=interfaces_lagg_edit.php*
 ##|-PRIV
 
@@ -87,7 +87,7 @@ if ($_POST) {
 	$reqdfields = explode(" ", "members proto");
 	$reqdfieldsn = array(gettext("Member interfaces"), gettext("Lagg protocol"));
 
-	do_input_validation($_POST, $reqdfields, $reqdfieldsn, $input_errors);
+	do_input_validation($_POST, $reqdfields, $reqdfieldsn, &$input_errors);
 
 	if (is_array($_POST['members'])) {
 		foreach ($_POST['members'] as $member) {

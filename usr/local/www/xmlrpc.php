@@ -269,9 +269,8 @@ function restore_config_section_xmlrpc($raw_params) {
 		}
 		/* Cleanup remaining old carps */
 		foreach ($oldvips as $oldvipif => $oldvippar) {
-			$oldvipif = get_real_interface($oldvippar['interface']);
-			if (!empty($oldvipif))
-				pfSense_interface_deladdress($oldvipif, $oldvipar['subnet']);
+			if (!is_ipaddr($oldvipif) && does_interface_exist($oldvipif))
+					pfSense_interface_destroy($oldvipif);
 		}
 		if ($carp_setuped == true)
 			interfaces_carp_setup();

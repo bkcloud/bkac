@@ -33,9 +33,9 @@
 */
 
 ##|+PRIV
-##|*IDENT=page-interfaces-lagg
+##|*IDENT=page-interfacess-lagg
 ##|*NAME=Interfaces: LAGG: page
-##|*DESCR=Allow access to the 'Interfaces: LAGG' page.
+##|*DESCR=Edit Interface LAGG
 ##|*MATCH=interfaces_lagg.php*
 ##|-PRIV
 

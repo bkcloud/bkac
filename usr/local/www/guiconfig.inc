@@ -240,13 +240,13 @@ function do_input_validation($postdata, $reqdfields, $reqdfieldsn, &$input_error
 	/* check for bad control characters */
 	foreach ($postdata as $pn => $pd) {
 		if (is_string($pd) && preg_match("/[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f]/", $pd)) {
-			$input_errors[] = "The field '" . $pn . "' contains invalid characters.";
+			$input_errors[] = "Nội dung '" . $pn . "' chứa các kí tự không hợp lệ.";
 		}
 	}
 
 	for ($i = 0; $i < count($reqdfields); $i++) {
 		if ($_POST[$reqdfields[$i]] == "" && $_REQUEST[$reqdfields[$i]] == "") {
-			$input_errors[] = "The field '" . $reqdfieldsn[$i] . "' is required.";
+			$input_errors[] = "Bắt buộc phải khai báo thông tin '" . $reqdfieldsn[$i] . "'.";
 		}
 	}
 }
@@ -262,7 +262,7 @@ function print_input_errors($input_errors) {
 			<img src="/themes/{$g['theme']}/images/icons/icon_error.gif" alt="errors" />
 		</td>
 		<td class="inputerrorsright errmsg">
-			<p>The following input errors were detected:</p>
+			<p>Việc nhập liệu có một số lỗi như sau:</p>
 				<ul>
 EOF;
 		foreach ($input_errors as $ierr) {
@@ -287,6 +287,17 @@ function verify_gzip_file($fname) {
 		return 1;
 }
 
+/*!
+ * @param[in]  $msg	Chuỗi thông báo sẽ hiên thị. Nếu chuỗi có chứa từ 
+ *                      "apply","save","create" mặc định sẽ hiển thị nút chấp thuận.
+ *			Trong trường hợp, sử dụng ngôn ngữ tiếng Việt, chú ý
+ *                      phải dịch thông nhất các từ khóa trên, và các câu cảnh 
+ *                      báo trong tham số này. Nếu không, nút "Apply Changes"       
+ *                      sẽ không hiện ra. 
+ *                      Nói cách khác là, trong file ngôn ngữ po, từ apply, save,
+ *                      create dịch như thế nào, thì tham số này phải chứa các
+ *                      chính xác từ đó
+ */
 function print_info_box_np($msg, $name="apply",$value="", $showapply=false) {
 	global $g, $nifty_redbox, $nifty_blackbox, $nifty_background;
 
@@ -321,7 +332,7 @@ function print_info_box_np($msg, $name="apply",$value="", $showapply=false) {
 	}
 
 	if(!$savebutton) {
-		$savebutton = "<td class=\"infoboxsave\"><input value=\"Close\" type=\"button\" onclick=\"jQuery('#redboxtable').hide();\" /></td>";
+		$savebutton = "<td class=\"infoboxsave\"><input value=\"Đóng\" type=\"button\" onclick=\"jQuery('#redboxtable').hide();\" /></td>";
 	}
 
 	echo <<<EOFnp
@@ -386,7 +397,7 @@ function print_info_box_np_undo($msg, $name="apply",$value="Apply changes", $und
 
 
 	if(!$savebutton) {
-		$savebutton = "<td class=\"infoboxsave\"><input value=\"Close\" type=\"button\" onclick=\"jQuery('#redboxtable').hide();\" /></td>";
+		$savebutton = "<td class=\"infoboxsave\"><input value=\"Đóng\" type=\"button\" onclick=\"jQuery('#redboxtable').hide();\" /></td>";
 	}
 
 	echo <<<EOFnp
@@ -432,12 +443,12 @@ function get_std_save_message($ok) {
 	global $d_sysrebootreqd_path;
 	$filter_related = false;
 	$filter_pages = array("nat", "filter");
-	$to_return = "The changes have been applied successfully.";
+	$to_return = "Các thay đổi đã được cập nhật thành công.";
 	foreach($filter_pages as $fp)
 		if(stristr($_SERVER['SCRIPT_FILENAME'], $fp))
 			$filter_related = true;
 	if($filter_related)
-		$to_return .= "<br/>You can also <a href=\"status_filter_reload.php\">monitor</a> the filter reload progress.";
+		$to_return .= "<br/>Bấm vào đây để  <a href=\"status_filter_reload.php\">xem chi tiết</a> quá trình nạp lại bộ lọc.";
 	return $to_return;
 }
 
@@ -543,37 +554,19 @@ function update_changedesc($update) {
 	$changecount++;
 }
 
-function clear_log_file($logfile = "/var/log/system.log", $restart_syslogd = true) {
+function clear_log_file($logfile = "/var/log/system.log") {
 	global $config, $g;
-	if ($restart_syslogd)
-		exec("/usr/bin/killall syslogd");
+	exec("/usr/bin/killall syslogd");
 	if(isset($config['system']['disablesyslogclog'])) {
 		unlink($logfile);
 		touch($logfile);
 	} else {
-		$log_size = isset($config['syslog']['logfilesize']) ? $config['syslog']['logfilesize'] : "511488";
 		if(isset($config['system']['usefifolog']))
-			exec("/usr/sbin/fifolog_create -s {$log_size} {$logfile}");
+			exec("/usr/sbin/fifolog_create -s 511488 {$logfile}");
 		else
-			exec("/usr/sbin/clog -i -s {$log_size} {$logfile}");
+			exec("/usr/sbin/clog -i -s 511488 {$logfile}");
 	}
-	if ($restart_syslogd)
-		system_syslogd_start();
-}
-
-function clear_all_log_files() {
-	global $g;
-	exec("/usr/bin/killall syslogd");
-
-	$log_files = array("system", "filter", "dhcpd", "vpn", "pptps", "poes", "l2tps", "openvpn", "portalauth", "ipsec", "ppp", "relayd", "wireless", "lighttpd", "ntpd", "gateways", "resolver", "routing");
-	foreach ($log_files as $lfile) {
-		clear_log_file("{$g['varlog_path']}/{$lfile}.log", false);
-	}
-
 	system_syslogd_start();
-	killbyname("dhcpd");
-	services_dhcpd_configure();
-	return;
 }
 
 function dump_clog($logfile, $tail, $withorig = true, $grepfor = "", $grepinvert = "") {
@@ -929,6 +922,7 @@ function echo_array($array,$return_me=false){
  *   null
  ******/
 function display_top_tabs(& $tab_array, $no_drop_down = false) {
+	global $HTTP_SERVER_VARS;
 	global $config;
 	global $g;
 	global $tab_array_indent;
@@ -1047,16 +1041,9 @@ function alias_info_popup($alias_id){
 		$alias_name=$config['aliases']['alias'][$alias_id];
 		$alias_objects_with_details = "<table width=\"100%\" border=\"0\" cellpadding=\"2\" cellspacing=\"0\" summary=\"alias info popup\">";
 		if ($alias_name['url']) {
-			// TODO: Change it when pf supports tables with ports
-			if ($alias_name['type'] == "urltable") {
-				exec("/sbin/pfctl -t {$alias_name['name']} -T show | wc -l", $total_entries);
-				$counter=preg_replace("/\D/","",$total_entries[0]);
-				exec("/sbin/pfctl -t {$alias_name['name']} -T show | head -10002", $alias_addresses);
-			} else {
-				$urlfn = alias_expand_urltable($alias_name['name']);
-				$alias_addresses = explode("\n", file_get_contents($urlfn));
-				$counter = count($alias_addresses);
-			}
+			exec("/sbin/pfctl -t {$alias_name['name']} -T show | wc -l", $total_entries);
+			$counter=preg_replace("/\D/","",$total_entries[0]);
+			exec("/sbin/pfctl -t {$alias_name['name']} -T show | head -10002", $alias_addresses);
 			$alias_objects_with_details .= "<tr><td colspan=\"3\" $close_title class=\"vncell\">{$alias_name['url']}</td></tr>";
 			$x=0;
 			foreach ($alias_addresses as $alias_ports_address ) {
