@@ -30,9 +30,9 @@
 */
 
 ##|+PRIV
-##|*IDENT=page-interfaces-qinq-edit
+##|*IDENT=page-interfacess-qinq
 ##|*NAME=Interfaces: QinQ: Edit page
-##|*DESCR=Allow access to 'Interfaces: QinQ: Edit' page
+##|*DESCR=Edit Interface qinq
 ##|*MATCH=interfaces_qinq_edit.php*
 ##|-PRIV
 

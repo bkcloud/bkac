@@ -39,7 +39,7 @@
 ##|*IDENT=page-system-advanced-network
 ##|*NAME=System: Advanced: Network page
 ##|*DESCR=Allow access to the 'System: Advanced: Networking' page.
-##|*MATCH=system_advanced_network.php*
+##|*MATCH=system_advanced-network.php*
 ##|-PRIV
 
 require("guiconfig.inc");
@@ -51,7 +51,6 @@ require_once("shaper.inc");
 $pconfig['ipv6nat_enable'] = isset($config['diag']['ipv6nat']['enable']);
 $pconfig['ipv6nat_ipaddr'] = $config['diag']['ipv6nat']['ipaddr'];
 $pconfig['ipv6allow'] = isset($config['system']['ipv6allow']);
-$pconfig['prefer_ipv4'] = isset($config['system']['prefer_ipv4']);
 $pconfig['polling_enable'] = isset($config['system']['polling']);
 $pconfig['sharednet'] = $config['system']['sharednet'];
 $pconfig['disablechecksumoffloading'] = isset($config['system']['disablechecksumoffloading']);
@@ -87,12 +86,6 @@ if ($_POST) {
 			$config['system']['ipv6allow'] = true;
 		} else {
 			unset($config['system']['ipv6allow']);
-		}
-
-		if($_POST['prefer_ipv4'] == "yes") {
-			$config['system']['prefer_ipv4'] = true;
-		} else {
-			unset($config['system']['prefer_ipv4']);
 		}
 
 		if($_POST['sharednet'] == "yes") {
@@ -142,9 +135,6 @@ if ($_POST) {
 
 		// Configure flowtable support from filter.inc
 		flowtable_configure();
-
-		// Set preferred protocol
-		prefer_ipv4_or_ipv6();
 
 		$retval = filter_configure();
 		if(stristr($retval, "error") <> true)
@@ -235,16 +225,6 @@ function enable_change(enable_over) {
 									<br/>
 									<?=gettext("IP address"); ?>&nbsp;:&nbsp;
 									<input name="ipv6nat_ipaddr" type="text" class="formfld unknown" id="ipv6nat_ipaddr" size="20" value="<?=htmlspecialchars($pconfig['ipv6nat_ipaddr']);?>" />
-								</td>
-							</tr>
-							<tr>
-								<td width="22%" valign="top" class="vncell"><?=gettext("Prefer IPv4 over IPv6"); ?></td>
-								<td width="78%" class="vtable">
-									<input name="prefer_ipv4" type="checkbox" id="prefer_ipv4" value="yes" <?php if ($pconfig['prefer_ipv4']) echo "checked=\"checked\""; ?> />
-									<strong><?=gettext("Prefer to use IPv4 even if IPv6 is available"); ?></strong><br/>
-									<?=gettext("By default, if a hostname resolves IPv6 and IPv4 addresses ".
-									"IPv6 will be used, if you check this option, IPv4 will be " .
-									"used instead of IPv6."); ?><br />
 								</td>
 							</tr>
 							<tr>

@@ -157,7 +157,14 @@ if ($_GET['act'] == "del") {
 
 			if ($found_carp === true && $found_other_alias === false)
 				$input_errors[] = gettext("This entry cannot be deleted because it is still referenced by a CARP IP with the description") . " {$vip['descr']}.";
+		} else if ($a_vip[$_GET['id']]['mode'] == "carp") {
+			$vipiface = "{$a_vip[$_GET['id']]['interface']}_vip{$a_vip[$_GET['id']]['vhid']}";
+			foreach ($a_vip as $vip) {
+				if ($vipiface == $vip['interface'] && $vip['mode'] == "ipalias")
+					$input_errors[] = gettext("This entry cannot be deleted because it is still referenced by an IP alias entry with the description") . " {$vip['descr']}.";
+			}
 		}
+
 		
 		if (!$input_errors) {
 			if (!session_id())
@@ -239,6 +246,9 @@ include("head.inc");
 		</tr>
 		<?php
 			$interfaces = get_configured_interface_with_descr(false, true);
+			$carplist = get_configured_carp_interface_list();
+			foreach ($carplist as $cif => $carpip)
+				$interfaces[$cif] = $carpip." (".get_vip_descr($carpip).")";
 			$interfaces['lo0'] = "Localhost";
 		?>
 			  <?php $i = 0; foreach ($a_vip as $vipent): ?>

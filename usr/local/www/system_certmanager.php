@@ -107,9 +107,8 @@ if ($act == "del") {
 if ($act == "new") {
 	$pconfig['method'] = $_GET['method'];
 	$pconfig['keylen'] = "2048";
-	$pconfig['digest_alg'] = "sha256";
 	$pconfig['csr_keylen'] = "2048";
-	$pconfig['csr_digest_alg'] = "sha256";
+	$pconfig['digest_alg'] = "sha256";
 	$pconfig['type'] = "user";
 	$pconfig['lifetime'] = "3650";
 }
@@ -157,18 +156,12 @@ if ($act == "p12") {
 	}
 
 	$exp_name = urlencode("{$a_cert[$id]['descr']}.p12");
-	$args = array();
-	$args['friendly_name'] = $a_cert[$id]['descr'];
-
-	$ca = lookup_ca($a_cert[$id]['caref']);
-	if ($ca)
-		$args['extracerts'] = openssl_x509_read(base64_decode($ca['crt']));
 
 	$res_crt = openssl_x509_read(base64_decode($a_cert[$id]['crt']));
 	$res_key = openssl_pkey_get_private(array(0 => base64_decode($a_cert[$id]['prv']) , 1 => ""));
 
 	$exp_data = "";
-	openssl_pkcs12_export($res_crt, $exp_data, $res_key, null, $args);
+	openssl_pkcs12_export($res_crt, $exp_data, $res_key, null);
 	$exp_size = strlen($exp_data);
 
 	header("Content-Type: application/octet-stream");
@@ -245,7 +238,7 @@ if ($_POST) {
 		}
 
 		$altnames = array();
-		do_input_validation($_POST, $reqdfields, $reqdfieldsn, $input_errors);
+		do_input_validation($_POST, $reqdfields, $reqdfieldsn, &$input_errors);
 		if ($pconfig['method'] != "import") {
 			/* subjectAltNames */
 			foreach ($_POST as $key => $value) {
@@ -262,7 +255,7 @@ if ($_POST) {
 					$altnames[$entry][$field] = $value;
 				}
 			}
-			$pconfig['altnames']['item'] = $altnames;
+			$pconfig['aliases']['item'] = $aliases;
 
 			/* Input validation for subjectAltNames */
 			foreach ($altnames as $idx => $altname) {
@@ -302,15 +295,11 @@ if ($_POST) {
 				}else if (($reqdfields[$i] != "descr") && preg_match("/[\!\@\#\$\%\^\(\)\~\?\>\<\&\/\\\,\.\"\']/", $_POST["$reqdfields[$i]"]))
 					array_push($input_errors, "The field '" . $reqdfieldsn[$i] . "' contains invalid characters.");
 			}
-			
 			if (isset($_POST["keylen"]) && !in_array($_POST["keylen"], $cert_keylens))
 				array_push($input_errors, gettext("Please select a valid Key Length."));
-			if (!in_array($_POST["digest_alg"], $openssl_digest_algs))
-				array_push($input_errors, gettext("Please select a valid Digest Algorithm."));
-				
 			if (isset($_POST["csr_keylen"]) && !in_array($_POST["csr_keylen"], $cert_keylens))
 				array_push($input_errors, gettext("Please select a valid Key Length."));
-			if (!in_array($_POST["csr_digest_alg"], $openssl_digest_algs))
+			if (!in_array($_POST["digest_alg"], $openssl_digest_algs))
 				array_push($input_errors, gettext("Please select a valid Digest Algorithm."));
 		}
 
@@ -379,7 +368,7 @@ if ($_POST) {
 						}
 						$dn['subjectAltName'] = implode(",", $altnames_tmp);
 					}
-					if(!csr_generate($cert, $pconfig['csr_keylen'], $dn, $pconfig['csr_digest_alg'])){
+					if(!csr_generate($cert, $pconfig['csr_keylen'], $dn, $pconfig['digest_alg'])){
 						while($ssl_err = openssl_error_string()){
 							$input_errors = array();
 							array_push($input_errors, "openssl library returns: " . $ssl_err);
@@ -414,7 +403,7 @@ if ($_POST) {
 			gettext("Descriptive name"),
 			gettext("Final Certificate data"));
 
-		do_input_validation($_POST, $reqdfields, $reqdfieldsn, $input_errors);
+		do_input_validation($_POST, $reqdfields, $reqdfieldsn, &$input_errors);
 
 //		old way
 		/* make sure this csr and certificate subjects match */
@@ -810,7 +799,7 @@ function internalca_change() {
 											?>
 											<tr>
 												<td>
-												<input autocomplete="off" name="altname_type<?php echo $counter; ?>" type="text" class="formfld unknown" id="altname_type<?php echo $counter; ?>" size="20" value="<?=htmlspecialchars($type);?>" />
+												<input autocomplete="off" name="altname_type<?php echo $counter; ?>" type="text" class="formfld unknown" id="altname_type<?php echo $counter; ?>" size="20" value="<?=htmlspecialchars($value);?>" />
 												</td>
 												<td>
 												<input autocomplete="off" name="altname_value<?php echo $counter; ?>" type="text" class="formfld unknown" id="altname_value<?php echo $counter; ?>" size="20" value="<?=htmlspecialchars($value);?>" />
@@ -877,14 +866,14 @@ function internalca_change() {
 						<tr>
 							<td width="22%" valign="top" class="vncellreq"><?=gettext("Digest Algorithm");?></td>
 							<td width="78%" class="vtable">
-								<select name='csr_digest_alg' id='csr_digest_alg' class="formselect">
+								<select name='digest_alg' id='digest_alg' class="formselect">
 								<?php
-									foreach( $openssl_digest_algs as $csr_digest_alg):
+									foreach( $openssl_digest_algs as $digest_alg):
 									$selected = "";
-									if ($pconfig['csr_digest_alg'] == $csr_digest_alg)
+									if ($pconfig['digest_alg'] == $digest_alg)
 										$selected = " selected=\"selected\"";
 								?>
-									<option value="<?=$csr_digest_alg;?>"<?=$selected;?>><?=strtoupper($csr_digest_alg);?></option>
+									<option value="<?=$digest_alg;?>"<?=$selected;?>><?=strtoupper($digest_alg);?></option>
 								<?php endforeach; ?>
 								</select>
 								<br/><?= gettext("NOTE: It is recommended to use an algorithm stronger than SHA1 when possible.") ?>
@@ -1180,7 +1169,7 @@ function internalca_change() {
 								<img src="/themes/<?= $g['theme'];?>/images/icons/icon_down.gif" title="<?=gettext("export key");?>" alt="<?=gettext("export ca");?>" width="17" height="17" border="0" />
 							</a>
 							<a href="system_certmanager.php?act=p12&amp;id=<?=$i;?>">
-								<img src="/themes/<?= $g['theme'];?>/images/icons/icon_down.gif" title="<?=gettext("export ca cert+user cert+user cert key in .p12 format");?>" alt="<?=gettext("export ca cert+user cert+user cert key in .p12 format");?>" width="17" height="17" border="0" />
+								<img src="/themes/<?= $g['theme'];?>/images/icons/icon_down.gif" title="<?=gettext("export cert+key in .p12");?>" alt="<?=gettext("export cert+key in .p12");?>" width="17" height="17" border="0" />
 							</a>
 							<?php	if (!cert_in_use($cert['refid'])): ?>
 							<a href="system_certmanager.php?act=del&amp;id=<?=$i;?>" onclick="return confirm('<?=gettext("Do you really want to delete this Certificate?");?>')">

@@ -186,7 +186,7 @@ if ($_POST) {
 		case "ppp":
 			$reqdfields = explode(" ", "interfaces phone");
 			$reqdfieldsn = array(gettext("Link Interface(s)"),gettext("Phone Number"));
-			do_input_validation($_POST, $reqdfields, $reqdfieldsn, $input_errors);
+			do_input_validation($_POST, $reqdfields, $reqdfieldsn, &$input_errors);
 			break;
 		case "pppoe":
 			if ($_POST['ondemand']) {
@@ -196,7 +196,7 @@ if ($_POST) {
 				$reqdfields = explode(" ", "interfaces username password");
 				$reqdfieldsn = array(gettext("Link Interface(s)"),gettext("Username"),gettext("Password"));
 			}
-			do_input_validation($_POST, $reqdfields, $reqdfieldsn, $input_errors);
+			do_input_validation($_POST, $reqdfields, $reqdfieldsn, &$input_errors);
 			break;
 		case "l2tp":
 		case "pptp":
@@ -207,7 +207,7 @@ if ($_POST) {
 				$reqdfields = explode(" ", "interfaces username password localip subnet gateway");
 				$reqdfieldsn = array(gettext("Link Interface(s)"),gettext("Username"),gettext("Password"),gettext("Local IP address"),gettext("Subnet"),gettext("Remote IP address"));
 			}
-			do_input_validation($_POST, $reqdfields, $reqdfieldsn, $input_errors);
+			do_input_validation($_POST, $reqdfields, $reqdfieldsn, &$input_errors);
 			break;
 		default:
 			$input_errors[] = gettext("Please choose a Link Type.");
@@ -434,7 +434,8 @@ $types = array("select" => gettext("Select"), "ppp" => "PPP", "pppoe" => "PPPoE"
 				$selected_ports = explode(',',$pconfig['interfaces']);
 				if (!is_dir("/var/spool/lock"))
 					mwexec("/bin/mkdir -p /var/spool/lock");
-				$serialports = pfSense_get_modem_devices();
+				// $serialports = pfSense_get_modem_devices();
+				$serialports = glob("/dev/cua?[0-9]{,.[0-9]}", GLOB_BRACE);
 				$serport_count = 0;
 				foreach ($serialports as $port) {
 					$serport_count++;

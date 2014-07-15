@@ -39,6 +39,19 @@
 ##|*MATCH=system_routes_edit.php*
 ##|-PRIV
 
+function staticroutecmp($a, $b) {
+	return strcmp($a['network'], $b['network']);
+}
+
+function staticroutes_sort() {
+	global $g, $config;
+
+	if (!is_array($config['staticroutes']['route']))
+		return;
+
+	usort($config['staticroutes']['route'], "staticroutecmp");
+}
+
 require_once("guiconfig.inc");
 require_once("filter.inc");
 require_once("util.inc");
@@ -83,7 +96,7 @@ if ($_POST) {
 			gettext("Destination network bit count") . "," .
 			gettext("Gateway"));
 
-	do_input_validation($_POST, $reqdfields, $reqdfieldsn, $input_errors);
+	do_input_validation($_POST, $reqdfields, $reqdfieldsn, &$input_errors);
 
 	if (($_POST['network'] && !is_ipaddr($_POST['network']) && !is_alias($_POST['network']))) {
 		$input_errors[] = gettext("A valid IPv4 or IPv6 destination network must be specified.");
@@ -114,16 +127,19 @@ if ($_POST) {
 		}
 	} elseif (is_alias($_POST['network'])) {
 		$osn = $_POST['network'];
-		foreach (preg_split('/\s+/', $aliastable[$osn]) as $tgt) {
+		$fqdn_found = 0;
+		foreach (filter_expand_alias_array($osn, true) as $tgt) {
 			if (is_ipaddrv4($tgt))
 				$tgt .= "/32";
 			if (is_ipaddrv6($tgt))
 				$tgt .= "/128";
-			if (!is_subnet($tgt))
-				continue;
-			if (!is_subnetv6($tgt))
-				continue;
-			$new_targets[] = $tgt;
+			if (is_fqdn($tgt)) {
+				$input_errors[] = sprintf(gettext("The alias (%s) has one or more FQDNs configured and cannot be used to configure a static route."), $_POST['network']);
+				$fqdn_found = 1;
+				break;
+			}
+			if (is_subnet($tgt))
+				$new_targets[] = $tgt;
 		}
 	}
 	if (!isset($id))
@@ -196,6 +212,7 @@ if ($_POST) {
 				}
 		}
 		file_put_contents("{$g['tmp_path']}/.system_routes.apply", serialize($toapplylist));
+		staticroutes_sort();
 
 		mark_subsystem_dirty('staticroutes');
 

@@ -207,7 +207,7 @@ if ($_POST) {
 		}
 	}
 
-	do_input_validation($_POST, $reqdfields, $reqdfieldsn, $input_errors);
+	do_input_validation($_POST, $reqdfields, $reqdfieldsn, &$input_errors);
 
 	if (preg_match("/[^a-zA-Z0-9\.\-_]/", $_POST['host']))
 		$input_errors[] = gettext("The host name contains invalid characters.");
@@ -215,7 +215,7 @@ if ($_POST) {
 	if (auth_get_authserver($pconfig['name']) && !isset($id))
 		$input_errors[] = gettext("An authentication server with the same name already exists.");
 
-	if (($pconfig['type'] == "radius") && isset($_POST['radius_timeout']) && !empty($_POST['radius_timeout']) && (!is_numeric($_POST['radius_timeout']) || (is_numeric($_POST['radius_timeout']) && ($_POST['radius_timeout'] <= 0))))
+	if (($pconfig['type'] == "radius") && isset($_POST['radius_timeout']) && (!is_numeric($_POST['radius_timeout']) || (is_numeric($_POST['radius_timeout']) && ($_POST['radius_timeout'] <= 0))))
 		$input_errors[] = gettext("RADIUS Timeout value must be numeric and positive.");
 
 	/* if this is an AJAX caller then handle via JSON */
@@ -277,8 +277,6 @@ if ($_POST) {
 
 			if ($pconfig['radius_timeout'])
 				$server['radius_timeout'] = $pconfig['radius_timeout'];
-			else
-				$server['radius_timeout'] = 5;
 
 			if ($pconfig['radius_srvcs'] == "both") {
 				$server['radius_auth_port'] = $pconfig['radius_auth_port'];

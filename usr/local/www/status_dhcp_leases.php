@@ -99,16 +99,22 @@ function leasecmp($a, $b) {
 function adjust_gmt($dt) {
 	global $config; 
 	$dhcpd = $config['dhcpd'];
-	foreach ($dhcpd as $dhcpditem) {
-		$dhcpleaseinlocaltime = $dhcpditem['dhcpleaseinlocaltime'];
+	foreach ($dhcpd as $dhcpleaseinlocaltime) {
+		$dhcpleaseinlocaltime = $dhcpleaseinlocaltime['dhcpleaseinlocaltime'];
 		if ($dhcpleaseinlocaltime == "yes") 
 			break;
 	}
+	$timezone = $config['system']['timezone'];
+	$ts = strtotime($dt . " GMT");
 	if ($dhcpleaseinlocaltime == "yes") {
-		$ts = strtotime($dt . " GMT");
+		$this_tz = new DateTimeZone($timezone); 
+		$dhcp_lt = new DateTime(strftime("%I:%M:%S%p", $ts), $this_tz); 
+		$offset = $this_tz->getOffset($dhcp_lt);
+		$ts = $ts + $offset;
 		return strftime("%Y/%m/%d %I:%M:%S%p", $ts);
-	} else
-		return $dt;
+	}
+	else
+		return strftime("%Y/%m/%d %H:%M:%S", $ts);
 }
 
 function remove_duplicate($array, $field)
@@ -131,14 +137,15 @@ $splitpattern = "'BEGIN { RS=\"}\";} {for (i=1; i<=NF; i++) printf \"%s \", \$i;
 exec("/bin/cat {$leasesfile} | {$awk} {$cleanpattern} | {$awk} {$splitpattern}", $leases_content);
 $leases_count = count($leases_content);
 exec("/usr/sbin/arp -an", $rawdata);
-$arpdata_ip = array();
-$arpdata_mac = array();
+$arpdata = array();
 foreach ($rawdata as $line) {
 	$elements = explode(' ',$line);
 	if ($elements[3] != "(incomplete)") {
 		$arpent = array();
-		$arpdata_ip[] = trim(str_replace(array('(',')'),'',$elements[1]));
-		$arpdata_mac[] = strtolower(trim($elements[3]));
+		$arpent['ip'] = trim(str_replace(array('(',')'),'',$elements[1]));
+		// $arpent['mac'] = trim($elements[3]);
+		// $arpent['interface'] = trim($elements[5]);
+	$arpdata[] = $arpent['ip'];
 	}
 }
 unset($rawdata);
@@ -228,7 +235,7 @@ foreach($leases_content as $lease) {
 			case "hardware":
 				$leases[$l]['mac'] = $data[$f+2];
 				/* check if it's online and the lease is active */
-				if (in_array($leases[$l]['ip'], $arpdata_ip)) {
+				if (in_array($leases[$l]['ip'], $arpdata)) {
 					$leases[$l]['online'] = 'online';
 				} else {
 					$leases[$l]['online'] = 'offline';
@@ -282,7 +289,12 @@ foreach($config['interfaces'] as $ifname => $ifarr) {
 			$slease['end'] = "";
 			$slease['hostname'] = htmlentities($static['hostname']);
 			$slease['act'] = "static";
-			$slease['online'] = in_array(strtolower($slease['mac']), $arpdata_mac) ? 'online' : 'offline';
+			$online = exec("/usr/sbin/arp -an |/usr/bin/grep {$slease['mac']}| /usr/bin/wc -l|/usr/bin/awk '{print $1;}'");
+			if ($online == 1) {
+				$slease['online'] = 'online';
+			} else {
+				$slease['online'] = 'offline';
+			}
 			$leases[] = $slease;
 		}
 	}

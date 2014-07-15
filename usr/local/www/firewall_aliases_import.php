@@ -1,7 +1,7 @@
 <?php
 /* $Id$ */
 /*
-	firewall_aliases_import.php
+	firewall_aliases_edit.php
 	Copyright (C) 2005 Scott Ullrich
 	All rights reserved.
 
@@ -38,8 +38,7 @@
 ##|-PRIV
 
 
-// Keywords not allowed in names
-$reserved_keywords = array("all", "pass", "block", "out", "queue", "max", "min", "pptp", "pppoe", "L2TP", "OpenVPN", "IPsec");
+$reserved_keywords = array("pass", "out", "queue", "max", "min", "pptp", "pppoe", "L2TP", "OpenVPN", "IPsec");
 
 require("guiconfig.inc");
 require_once("util.inc");
@@ -48,13 +47,8 @@ require("shaper.inc");
 
 $pgtitle = array(gettext("Firewall"),gettext("Aliases"),gettext("Bulk import"));
 
-// Add all Load balance names to reserved_keywords
-if (is_array($config['load_balancer']['lbpool']))
-	foreach ($config['load_balancer']['lbpool'] as $lbpool)
-		$reserved_keywords[] = $lbpool['name'];
-
 $reserved_ifs = get_configured_interface_list(false, true);
-$reserved_keywords = array_merge($reserved_keywords, $reserved_ifs, $reserved_table_names);
+$reserved_keywords = array_merge($reserved_keywords, $reserved_ifs);
 
 if (!is_array($config['aliases']['alias']))
         $config['aliases']['alias'] = array();
@@ -64,7 +58,7 @@ if($_POST['aliasimport'] <> "") {
 	$reqdfields = explode(" ", "name aliasimport");
 	$reqdfieldsn = array(gettext("Name"),gettext("Aliases"));
 
-	do_input_validation($_POST, $reqdfields, $reqdfieldsn, $input_errors);
+	do_input_validation($_POST, $reqdfields, $reqdfieldsn, &$input_errors);
 		
 	if (is_validaliasname($_POST['name']) == false)
 		$input_errors[] = gettext("The alias name may only consist of the characters") . " a-z, A-Z, 0-9, _.";
@@ -89,56 +83,27 @@ if($_POST['aliasimport'] <> "") {
 
 	if ($_POST['aliasimport']) {
 		$tocheck = explode("\n", $_POST['aliasimport']);
-		$imported_ips = array();
-		$imported_descs = array();
-		$desc_len_err_found = false;
-		$desc_fmt_err_found = false;
-		foreach ($tocheck as $impline) {
-			$implinea = explode(" ",trim($impline),2);
-			$impip = $implinea[0];
-			$impdesc = trim($implinea[1]);
-			if (strlen($impdesc) < 200) {
-				if ((strpos($impdesc, "||") === false) && (substr($impdesc, 0, 1) != "|") && (substr($impdesc, -1, 1) != "|")) {
-					if (is_iprange($impip)) {
-						list($startip, $endip) = explode('-', $impip);
-						$rangesubnets = ip_range_to_subnet_array($startip, $endip);
-						$imported_ips = array_merge($imported_ips, $rangesubnets);
-						$rangedescs = array_fill(0, count($rangesubnets), $impdesc);
-						$imported_descs = array_merge($imported_descs, $rangedescs);
-					} else if (!is_ipaddr($impip) && !is_subnet($impip) && !empty($impip)) {
-						$input_errors[] = sprintf(gettext("%s is not an IP address. Please correct the error to continue"), $impip);
-					} elseif (!empty($impip)) {
-						$imported_ips[] = $impip;
-						$imported_descs[] = $impdesc;
-					}
-				}
-				else {
-					if (!$desc_fmt_err_found) {
-						$input_errors[] = gettext("Descriptions may not start or end with vertical bar (|) or contain double vertical bar ||.");
-						$desc_fmt_err_found = true;
-					}
-				}
-			}
-			else {
-				if (!$desc_len_err_found) {
-					/* Note: The 200 character limit is just a practical check to avoid accidents */
-					/* if the user pastes a large number of IP addresses without line breaks.     */
-					$input_errors[] = gettext("Descriptions must be less than 200 characters long.");
-					$desc_len_err_found = true;
-				}
+		$imported = array();
+		foreach ($tocheck as $impip) {
+			$impip = trim($impip);
+			if (is_iprange($impip)) {
+				list($startip, $endip) = explode('-', $impip);
+				$rangesubnets = ip_range_to_subnet_array($startip, $endip);
+				$address .= implode(" ", $rangesubnets);
+			} else if (!is_ipaddr($impip) && !is_subnet($impip) && !empty($impip)) {
+				$input_errors[] = sprintf(gettext("%s is not an IP address. Please correct the error to continue"), $impip);
+			} elseif (!empty($impip)) {
+				$imported[] = $impip;
 			}
 		}
-		unset($desc_len_err_found, $desc_fmt_err_found);
 	}
 
-	if (!$input_errors && is_array($imported_ips)) {
+	if (!$input_errors && is_array($imported)) {
 		$alias = array();
-		$alias['address'] = implode(" ", $imported_ips);
-		$alias['detail'] = implode("||", $imported_descs);
+		$alias['address'] = implode(" ", $imported);
 		$alias['name'] = $_POST['name'];
 		$alias['type'] = "network";
 		$alias['descr'] = $_POST['descr'];
-		unset($imported_ips, $imported_descs);
 		$a_aliases[] = $alias;
 
 		// Sort list
@@ -180,14 +145,8 @@ include("head.inc");
 	<tr>
 	  <td valign="top" class="vncellreq"><?=gettext("Aliases to import"); ?></td>
 	  <td class="vtable"><textarea name="aliasimport" rows="15" cols="40"><?php echo $_POST['aliasimport']; ?></textarea>
-		<br /> <span class="vexpl"><?=gettext("Paste in the aliases to import separated by a carriage return.  Common examples are lists of IPs, networks, blacklists, etc."); ?> 
-		<br /> <?=gettext("The list may contain IP addresses, with or without CIDR prefix, IP ranges, blank lines (ignored) and an optional description after each IP. e.g.:"); ?>
-		<br />172.16.1.2
-		<br />172.16.0.0/24
-		<br />10.11.12.100-10.11.12.200
-		<br />192.168.1.254 Home router
-		<br />10.20.0.0/16 Office network
-		<br />10.40.1.10-10.40.1.19 Managed switches</span></td>
+	    <br /> <span class="vexpl"><?=gettext("Paste in the aliases to import separated by a carriage return.  Common examples are lists of IPs, networks, blacklists, etc."); ?> 
+	    <br /> <?=gettext("The list may contain only IP addresses."); ?> </span></td>
 	</tr>
 	<tr>
 	  <td width="22%" valign="top">&nbsp;</td>

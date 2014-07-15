@@ -137,7 +137,7 @@ if ($_POST) {
 				$reqfieldsn[] = $field['fielddescr'];
 		}
 	}
-	do_input_validation($_POST, $reqfields, $reqfieldsn, $input_errors);
+	do_input_validation($_POST, $reqfields, $reqfieldsn, &$input_errors);
 
 	if ($pkg['custom_php_validation_command'])
 		eval($pkg['custom_php_validation_command']);
@@ -719,9 +719,7 @@ if ($pkg['tabs'] <> "") {
 				if (is_array($config['interfaces']))
 					foreach ($config['interfaces'] as $iface_key=>$iface_value){
 						if (isset($iface_value['enable']) && ! preg_match("/$interface_regex/",$iface_key)){
-							$iface_description=($iface_value['descr'] !="" ? strtoupper($iface_value['descr']) : strtoupper($iface_key));
-							if (isset($pkga['showips']))
-								$iface_description .= " address";
+							$iface_description=(isset($pkga['showips']) ? strtoupper($iface_key)." address" : strtoupper($iface_key));
 							$ips[]=array('ip'=> $iface_key, 'description'=> $iface_description);
 							}
 					}
@@ -992,7 +990,7 @@ function display_row($trc, $value, $fieldname, $type, $rowhelper, $size) {
 			$multiple = '';
 			if (isset($rowhelper['multiple'])) {
 				$fieldname .= '[]';
-				$multiple = "multiple=\"multiple\"";
+				$multiple = 'multiple="multiple';
 			}
 			echo "<select style='height:22px;' id='{$fieldname}{$trc}' name='{$fieldname}{$trc}' {$size} {$multiple}>\n";
 			$ifaces = get_configured_interface_with_descr();
@@ -1006,7 +1004,7 @@ function display_row($trc, $value, $fieldname, $type, $rowhelper, $size) {
 			$ifaces["lo0"] = "loopback";
 			echo "<option><name></name><value></value></option>/n";
 			foreach($ifaces as $ifname => $iface) {
-				$text .="<option value=\"{$ifname}\">$iface</option>";
+				$text .="<option value=\\\"$ifname\\\">$iface</option>";
 				echo "<option value=\"{$ifname}\" ".(in_array($ifname, $values) ? 'selected="selected"' : '').">{$iface}</option>\n";
 				}
 			echo "</select>\n";

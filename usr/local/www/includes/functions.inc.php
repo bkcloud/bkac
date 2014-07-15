@@ -8,7 +8,6 @@ if(Connection_Aborted()) {
 }
 
 require_once("config.inc");
-require_once("pfsense-utils.inc");
 
 function get_stats() {
 	$stats['cpu'] = cpu_usage();
@@ -72,14 +71,21 @@ function get_gatewaystats() {
 			$bgcolor = "#ADD8E6";  // lightblue
 		}
 		$data .= ($online == "Pending") ? "{$online},{$online}," : "{$gws['delay']},{$gws['loss']},";
-		$data .= "<table><tr><td bgcolor=\"$bgcolor\">&nbsp;$online&nbsp;</td></td></tr></table>";
+		$data .= "<table border=\"0\" cellpadding=\"0\" cellspacing=\"2\" summary=\"status\"><tr><td bgcolor=\"$bgcolor\">&nbsp;$online&nbsp;</td></tr></table>";
 	}
 	return $data;
 }
 
 function get_uptime() {
-	$uptime = get_uptime_sec();
+	$boottime = "";
+	$matches = "";
+	exec("/sbin/sysctl -n kern.boottime", $boottime);
+	preg_match("/sec = (\d+)/", $boottime[0], $matches);
+	$boottime = $matches[1];
+	$uptime = time() - $boottime;
 
+	if(intval($boottime) == 0)
+		return;
 	if(intval($uptime) == 0)
 		return;
 
@@ -145,13 +151,8 @@ function get_pfstate($percent=false) {
 	if (preg_match("/([0-9]+)/", $curentries, $matches)) {
 		$curentries = $matches[1];
 	}
-	if (!is_numeric($curentries))
-		$curentries = 0;
 	if ($percent)
-		if (intval($maxstates) > 0)
-			return round(($curentries / $maxstates) * 100, 0);
-		else
-			return "NA";
+		return round(($curentries / $maxstates) * 100, 0);
 	else
 		return $curentries . "/" . $maxstates;
 }
@@ -171,10 +172,7 @@ function get_mbuf($percent=false) {
 	$mbufs_output=trim(`/usr/bin/netstat -mb | /usr/bin/grep "mbuf clusters in use" | /usr/bin/awk '{ print $1 }'`);
 	list( $mbufs_current, $mbufs_cache, $mbufs_total, $mbufs_max ) = explode( "/", $mbufs_output);
 	if ($percent)
-		if ($mbufs_max > 0)
-			return round(($mbufs_total / $mbufs_max) * 100, 0);
-		else
-			return "NA";
+		return round(($mbufs_total / $mbufs_max) * 100, 0);
 	else
 		return "{$mbufs_total}/{$mbufs_max}";
 }
@@ -219,10 +217,7 @@ function mem_usage() {
 	$totalMem = $memory[0];
 	$availMem = $memory[1] + $memory[2] + $memory[3];
 	$usedMem = $totalMem - $availMem;
-	if ($totalMem > 0)
-		$memUsage = round(($usedMem * 100) / $totalMem, 0);
-	else
-		$memUsage = "NA";
+	$memUsage = round(($usedMem * 100) / $totalMem, 0);
 
 	return $memUsage;
 }

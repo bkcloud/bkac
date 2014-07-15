@@ -42,7 +42,7 @@
 require("guiconfig.inc");
 require("pkg-utils.inc");
 
-$a_gateways = return_gateways_array(true, false, true);
+$a_gateways = return_gateways_array(true);
 $a_gateways_arr = array();
 foreach($a_gateways as $gw) {
 	$a_gateways_arr[] = $gw;
@@ -75,26 +75,21 @@ if (isset($id) && $a_gateways[$id]) {
 		$pconfig['dynamic'] = true;
 	$pconfig['gateway'] = $a_gateways[$id]['gateway'];
 	$pconfig['defaultgw'] = isset($a_gateways[$id]['defaultgw']);
-	$pconfig['force_down'] = isset($a_gateways[$id]['force_down']);
-	$pconfig['latencylow'] = $a_gateways[$id]['latencylow'];
-	$pconfig['latencyhigh'] = $a_gateways[$id]['latencyhigh'];
-	$pconfig['losslow'] = $a_gateways[$id]['losslow'];
-	$pconfig['losshigh'] = $a_gateways[$id]['losshigh'];
-	$pconfig['down'] = $a_gateways[$id]['down'];
+	$pconfig['latencylow'] = $a_gateway_item[$id]['latencylow'];
+	$pconfig['latencyhigh'] = $a_gateway_item[$id]['latencyhigh'];
+	$pconfig['losslow'] = $a_gateway_item[$id]['losslow'];
+	$pconfig['losshigh'] = $a_gateway_item[$id]['losshigh'];
+	$pconfig['down'] = $a_gateway_item[$id]['down'];
 	$pconfig['monitor'] = $a_gateways[$id]['monitor'];
 	$pconfig['monitor_disable'] = isset($a_gateways[$id]['monitor_disable']);
 	$pconfig['descr'] = $a_gateways[$id]['descr'];
 	$pconfig['attribute'] = $a_gateways[$id]['attribute'];
-	$pconfig['disabled'] = isset($a_gateways[$id]['disabled']);
 }
 
 if (isset($_GET['dup'])) {
 	unset($id);
 	unset($pconfig['attribute']);
 }
-
-if (isset($id) && $a_gateways[$id])
-	$realid = $a_gateways[$id]['attribute'];
 
 if ($_POST) {
 
@@ -104,7 +99,7 @@ if ($_POST) {
 	$reqdfields = explode(" ", "name interface");
 	$reqdfieldsn = array(gettext("Name"), gettext("Interface"));
 
-	do_input_validation($_POST, $reqdfields, $reqdfieldsn, $input_errors);
+	do_input_validation($_POST, $reqdfields, $reqdfieldsn, &$input_errors);
 
 	if (! isset($_POST['name'])) {
 		$input_errors[] = "A valid gateway name must be specified.";
@@ -122,7 +117,7 @@ if ($_POST) {
 			$parent_ip = get_interface_ip($_POST['interface']);
 			$parent_sn = get_interface_subnet($_POST['interface']);
 			if(empty($parent_ip) || empty($parent_sn)) {
-				$input_errors[] = gettext("Cannot add IPv4 Gateway Address because no IPv4 address could be found on the interface.");
+				$input_errors[] = gettext("You can not use a IPv4 Gateway Address on a IPv6 only interface.");
 			} else {
 				$subnets = array(gen_subnet($parent_ip, $parent_sn) . "/" . $parent_sn);
 				$vips = link_interface_to_vips($_POST['interface']);
@@ -150,7 +145,7 @@ if ($_POST) {
 				$parent_ip = get_interface_ipv6($_POST['interface']);
 				$parent_sn = get_interface_subnetv6($_POST['interface']);
 				if(empty($parent_ip) || empty($parent_sn)) {
-					$input_errors[] = gettext("Cannot add IPv6 Gateway Address because no IPv6 address could be found on the interface.");
+					$input_errors[] = gettext("You can not use a IPv6 Gateway Address on a IPv4 only interface.");
 				} else {
 					$subnets = array(gen_subnetv6($parent_ip, $parent_sn) . "/" . $parent_sn);
 					$vips = link_interface_to_vips($_POST['interface']);
@@ -389,18 +384,16 @@ if ($_POST) {
 		$gateway['descr'] = $_POST['descr'];
 		if ($_POST['monitor_disable'] == "yes")
 			$gateway['monitor_disable'] = true;
-		if ($_POST['force_down'] == "yes")
-			$gateway['force_down'] = true;
-		if (is_ipaddr($_POST['monitor']))
+		else if (is_ipaddr($_POST['monitor'])) {
+			/* NOTE: If monitor ip is changed need to cleanup the old static route */
+			if ($_POST['monitor'] != "dynamic" && !empty($a_gateway_item[$id]) && is_ipaddr($a_gateway_item[$id]['monitor']) &&
+			    $_POST['monitor'] != $a_gateway_item[$id]['monitor'] && $gateway['gateway'] != $a_gateway_item[$id]['monitor']) {
+				if (is_ipaddrv4($a_gateway_item[$id]['monitor']))
+					mwexec("/sbin/route delete " . escapeshellarg($a_gateway_item[$id]['monitor']));
+				else
+					mwexec("/sbin/route delete -inet6 " . escapeshellarg($a_gateway_item[$id]['monitor']));
+			}
 			$gateway['monitor'] = $_POST['monitor'];
-
-		/* NOTE: If monitor ip is changed need to cleanup the old static route */
-		if ($_POST['monitor'] != "dynamic" && !empty($a_gateway_item[$realid]) && is_ipaddr($a_gateway_item[$realid]['monitor']) &&
-		    $_POST['monitor'] != $a_gateway_item[$realid]['monitor'] && $gateway['gateway'] != $a_gateway_item[$realid]['monitor']) {
-			if (is_ipaddrv4($a_gateway_item[$realid]['monitor']))
-				mwexec("/sbin/route delete " . escapeshellarg($a_gateway_item[$realid]['monitor']));
-			else
-				mwexec("/sbin/route delete -inet6 " . escapeshellarg($a_gateway_item[$realid]['monitor']));
 		}
 
 		if ($_POST['defaultgw'] == "yes" || $_POST['defaultgw'] == "on") {
@@ -428,14 +421,9 @@ if ($_POST) {
 		if ($_POST['down'])
 			$gateway['down'] = $_POST['down'];
 
-		if(isset($_POST['disabled']))
-			$gateway['disabled'] = true;
-		else
-			unset($gateway['disabled']);
-
 		/* when saving the manual gateway we use the attribute which has the corresponding id */
-		if (isset($realid) && $a_gateway_item[$realid])
-			$a_gateway_item[$realid] = $gateway;
+		if (isset($id) && $a_gateway_item[$id])
+			$a_gateway_item[$id] = $gateway;
 		else
 			$a_gateway_item[] = $gateway;
 
@@ -502,14 +490,6 @@ function monitor_change() {
 		<table width="100%" border="0" cellpadding="6" cellspacing="0" summary="system gateways edit">
 			<tr>
 				<td colspan="2" valign="top" class="listtopic"><?=gettext("Edit gateway"); ?></td>
-			</tr>
-			<tr>
-				<td width="22%" valign="top" class="vncellreq"><?=gettext("Disabled");?></td>
-				<td width="78%" class="vtable">
-					<input name="disabled" type="checkbox" id="disabled" value="yes" <?php if ($pconfig['disabled']) echo "checked=\"checked\""; ?> />
-					<strong><?=gettext("Disable this gateway");?></strong><br />
-					<span class="vexpl"><?=gettext("Set this option to disable this gateway without removing it from the list.");?></span>
-				</td>
 			</tr>
 			<tr>
 				<td width="22%" valign="top" class="vncellreq"><?=gettext("Interface"); ?></td>
@@ -596,14 +576,6 @@ function monitor_change() {
 					"quality RRD graphs as well as the load balancer entries. Use this if the gateway does not respond " .
 					"to ICMP echo requests (pings)"); ?>.
 					<br />
-				</td>
-			</tr>
-			<tr>
-				<td width="22%" valign="top" class="vncell"><?=gettext("Mark Gateway as Down"); ?></td>
-				<td width="78%" class="vtable">
-					<input name="force_down" type="checkbox" id="force_down" value="yes" <?php if ($pconfig['force_down'] == true) echo "checked=\"checked\""; ?> />
-					<strong><?=gettext("Mark Gateway as Down"); ?></strong><br />
-					<?=gettext("This will force this gateway to be considered Down"); ?>
 				</td>
 			</tr>
 			<tr>

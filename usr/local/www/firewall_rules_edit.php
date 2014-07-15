@@ -157,7 +157,6 @@ if (isset($id) && $a_filter[$id]) {
 	$pconfig['max-src-states'] = $a_filter[$id]['max-src-states'];
 	$pconfig['statetype'] = $a_filter[$id]['statetype'];
 	$pconfig['statetimeout'] = $a_filter[$id]['statetimeout'];
-	$pconfig['nopfsync'] = isset($a_filter[$id]['nopfsync']);
 
 	/* advanced - nosync */
 	$pconfig['nosync'] = isset($a_filter[$id]['nosync']);
@@ -182,8 +181,6 @@ if (isset($id) && $a_filter[$id]) {
 	$pconfig['vlanprioset'] = (($a_filter[$id]['vlanprioset'] == "none") ? '' : $a_filter[$id]['vlanprioset']);
 	if (!isset($_GET['dup']))
 		$pconfig['associated-rule-id'] = $a_filter[$id]['associated-rule-id'];
-
-	$pconfig['tracker'] = $a_filter[$id]['tracker'];
 
 } else {
 	/* defaults */
@@ -345,7 +342,7 @@ if ($_POST) {
 		$reqdfieldsn[] = gettext("Destination bit count");
 	}
 
-	do_input_validation($_POST, $reqdfields, $reqdfieldsn, $input_errors);
+	do_input_validation($_POST, $reqdfields, $reqdfieldsn, &$input_errors);
 
 	if (!$_POST['srcbeginport']) {
 		$_POST['srcbeginport'] = 0;
@@ -533,9 +530,6 @@ if ($_POST) {
 	if (!$input_errors) {
 		$filterent = array();
 		$filterent['id'] = $_POST['ruleid']>0?$_POST['ruleid']:'';
-
-		$filterent['tracker'] = empty($_POST['tracker']) ? (int)microtime(true) : $_POST['tracker'];
-
 		$filterent['type'] = $_POST['type'];
 		if (isset($_POST['interface'] ))
 			$filterent['interface'] = $_POST['interface'];
@@ -591,10 +585,6 @@ if ($_POST) {
 		$filterent['statetimeout'] = $_POST['statetimeout'];
 		$filterent['statetype'] = $_POST['statetype'];
 		$filterent['os'] = $_POST['os'];
-		if($_POST['nopfsync'] <> "")
-			$filterent['nopfsync'] = true;
-		else
-			unset($filterent['nopfsync']);
 
 		/* Nosync directive - do not xmlrpc sync this item */
 		if($_POST['nosync'] <> "")
@@ -1320,24 +1310,16 @@ $i--): ?>
 		<tr>
 			<td width="22%" valign="top" class="vncell"><?=gettext("State Type");?></td>
 			<td width="78%" class="vtable">
-				<div id="showadvstatebox" <?php if (!empty($pconfig['nopfsync']) || (!empty($pconfig['statetype']) && $pconfig['statetype'] != "keep state")) echo "style='display:none'"; ?>>
+				<div id="showadvstatebox" <?php if (!empty($pconfig['statetype']) && $pconfig['statetype'] != "keep state") echo "style='display:none'"; ?>>
 					<input type="button" onclick="show_advanced_state()" value="<?=gettext("Advanced"); ?>" /> - <?=gettext("Show advanced option");?>
 				</div>
-				<div id="showstateadv" <?php if (empty($pconfig['nopfsync']) && (empty($pconfig['statetype']) || $pconfig['statetype'] == "keep state")) echo "style='display:none'"; ?>>
-					<input name="nopfsync" type="checkbox" id="nopfsync" value="yes" <?php if ($pconfig['nopfsync']) echo "checked=\"checked\""; ?> />
-					<span class="vexpl">
-						NO pfsync<br/>
-						<?=gettext("Hint: This prevents states created by this rule to be sync'ed over pfsync.");?><br/>
-					</span><br/>
+				<div id="showstateadv" <?php if (empty($pconfig['statetype']) || $pconfig['statetype'] == "keep state") echo "style='display:none'"; ?>>
 					<select name="statetype">
 						<option value="keep state" <?php if(!isset($pconfig['statetype']) or $pconfig['statetype'] == "keep state") echo "selected=\"selected\""; ?>><?=gettext("keep state");?></option>
 						<option value="sloppy state" <?php if($pconfig['statetype'] == "sloppy state") echo "selected=\"selected\""; ?>><?=gettext("sloppy state");?></option>
 						<option value="synproxy state"<?php if($pconfig['statetype'] == "synproxy state")  echo "selected=\"selected\""; ?>><?=gettext("synproxy state");?></option>
 						<option value="none"<?php if($pconfig['statetype'] == "none") echo "selected=\"selected\""; ?>><?=gettext("none");?></option>
-					</select><br/>
-					<span class="vexpl">
-						<?=gettext("Hint: Select which type of state tracking mechanism you would like to use.  If in doubt, use keep state.");?>
-					</span>
+					</select><br/><?=gettext("Hint: Select which type of state tracking mechanism you would like to use.  If in doubt, use keep state.");?>
 					<table width="90%">
 						<tr><td width="25%"><ul><li><?=gettext("keep state");?></li></ul></td><td><?=gettext("Works with all IP protocols.");?></td></tr>
 						<tr><td width="25%"><ul><li><?=gettext("sloppy state");?></li></ul></td><td><?=gettext("Works with all IP protocols.");?></td></tr>
@@ -1670,7 +1652,6 @@ $has_updated_time = (isset($a_filter[$id]['updated']) && is_array($a_filter[$id]
 				<input name="Submit" type="submit" class="formbtn" value="<?=gettext("Save"); ?>" />  <input type="button" class="formbtn" value="<?=gettext("Cancel"); ?>" onclick="history.back()" />
 <?php			if (isset($id) && $a_filter[$id]): ?>
 					<input name="id" type="hidden" value="<?=htmlspecialchars($id);?>" />
-					<input name="tracker" type="hidden" value="<?=htmlspecialchars($pconfig['tracker']);?>">
 <?php 			endif; ?>
 				<input name="after" type="hidden" value="<?=htmlspecialchars($after);?>" />
 			</td>
@@ -1687,7 +1668,7 @@ $has_updated_time = (isset($a_filter[$id]['updated']) && is_array($a_filter[$id]
 	<?php endif; ?>
 
 	var addressarray = <?= json_encode(get_alias_list(array("host", "network", "openvpn", "urltable"))) ?>;
-	var customarray  = <?= json_encode(get_alias_list(array("port", "url_ports", "urltable_ports"))) ?>;
+	var customarray  = <?= json_encode(get_alias_list("port")) ?>;
 
 	var oTextbox1 = new AutoSuggestControl(document.getElementById("src"), new StateSuggestions(addressarray));
 	var oTextbox2 = new AutoSuggestControl(document.getElementById("srcbeginport_cust"), new StateSuggestions(customarray));

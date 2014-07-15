@@ -48,11 +48,11 @@ $counter = 1;
 			Name
 	</td>
 	<td width="70%" class="listr">
-		<table width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout: fixed;" summary="heading">
+		<table width="100%" border="0" cellspacing="0" cellpadding="0" summary="heading">
 			<tr>
-			<td width="25%" class="listhdrr ellipsis">RTT</td>
-			<td width="25%" class="listhdrr ellipsis">Loss</td>
-			<td width="50%" class="listhdrr ellipsis">Status</td>
+			<td width="25%" class="listhdrr">RTT</td>
+			<td width="25%" class="listhdrr">Loss</td>
+			<td width="50%" class="listhdrr">Status</td>
 			</tr>
 		</table>
 	</td>
@@ -65,10 +65,10 @@ $counter = 1;
 		</strong>
 		<?php $counter++; ?>
 	</td>
-	<td width="70%" class="listr ellipsis">
-		<table width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout: fixed;" summary="address">
+	<td width="70%" class="listr">
+		<table width="100%" border="0" cellspacing="0" cellpadding="0" summary="address">
 			<tr>
-			<td class="vncellt ellipsis" width="100%">
+			<td class="vncellt" width="100%">
 				<div id="gateway<?php echo $counter; ?>" style="display:inline">
 					<?php
 						if (is_ipaddr($gateway['gateway']))
@@ -85,9 +85,9 @@ $counter = 1;
 			</td>
 			</tr>
 		</table>
-		<table width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout: fixed;" summary="statistics">
+		<table width="100%" border="0" cellspacing="0" cellpadding="0" summary="statistics">
 			<tr>
-			<td width="25%" class="listlr ellipsis" align="center" id="gateway<?php echo $counter; ?>">
+			<td width="25%" class="listlr" align="center" id="gateway<?php echo $counter; ?>">
 			<?php
 				if ($gateways_status[$gname])
 					echo htmlspecialchars($gateways_status[$gname]['delay']);
@@ -96,7 +96,7 @@ $counter = 1;
 			?>
 			<?php $counter++; ?>
 			</td>
-			<td width="25%" class="listr ellipsis" align="center" id="gateway<?php echo $counter; ?>">
+			<td width="25%" class="listr" align="center" id="gateway<?php echo $counter; ?>">
 			<?php
 				if ($gateways_status[$gname])
 					echo htmlspecialchars($gateways_status[$gname]['loss']);
@@ -105,14 +105,11 @@ $counter = 1;
 			?>
 			<?php $counter++; ?>
 			</td>
-			<td width="50%" class="listr ellipsis" id="gateway<?php echo $counter ?>" >
-			<table border="0" cellpadding="0" cellspacing="2" style="table-layout: fixed;" summary="status">
+			<td width="50%" class="listr" id="gateway<?php echo $counter ?>" >
+			<table border="0" cellpadding="0" cellspacing="2" summary="status">
 			<?php
 				if ($gateways_status[$gname]) {
-					if (stristr($gateways_status[$gname]['status'], "force_down")) {
-						$online = "Offline (forced)";
-						$bgcolor = "#F08080";  // lightcoral
-					} elseif (stristr($gateways_status[$gname]['status'], "down")) {
+					if (stristr($gateways_status[$gname]['status'], "down")) {
 						$online = "Offline";
 						$bgcolor = "#F08080";  // lightcoral
 					} elseif (stristr($gateways_status[$gname]['status'], "loss")) {
@@ -132,7 +129,7 @@ $counter = 1;
 					$online = gettext("Unknown");
 					$bgcolor = "#ADD8E6";  // lightblue
 				}
-				echo "<tr><td class=\"ellipsis\" bgcolor=\"$bgcolor\">&nbsp;$online&nbsp;</td></tr>\n";
+				echo "<tr><td bgcolor=\"$bgcolor\">&nbsp;$online&nbsp;</td></tr>\n";
 				$counter++;
 			?>
 			</table>
@@ -143,5 +140,3 @@ $counter = 1;
 	</tr>
 	<?php } // foreach ?>
 </table>
-
-

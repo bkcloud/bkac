@@ -83,7 +83,7 @@ function puts( $arg ) { echo "$arg\n"; }
 // "Constants".
 
 $Version    = '';
-$ScriptName = $REQUEST['SCRIPT_NAME'];
+$ScriptName = $HTTP_SERVER_VARS['SCRIPT_NAME'];
 
 // Get year.
 

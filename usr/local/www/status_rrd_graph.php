@@ -281,7 +281,6 @@ include("head.inc");
 	<?php } ?>
 	<script type="text/javascript" src="/javascript/jquery-ui-timepicker-addon/js/jquery-ui-timepicker-addon.js"></script>
 	<script type="text/javascript">
-	//<![CDATA[
 		jQuery(function ($) {
 			var options = {
 				dateFormat: 'mm/dd/yy',
@@ -291,8 +290,8 @@ include("head.inc");
 			$("#startDateTime").datetimepicker(options);
 			$("#endDateTime").datetimepicker(options);
 		});
-	//]]>
 	</script>
+	</head>
 <?php } ?>
 
 <?php
@@ -389,15 +388,14 @@ function get_dates($curperiod, $graph) {
 }
 
 ?>
-</head>
 <body link="#0000CC" vlink="#0000CC" alink="#0000CC">
 <?php include("fbegin.inc"); ?>
 <?php if ($input_errors && count($input_errors)) { print_input_errors($input_errors); } ?>
-<form name="form1" action="status_rrd_graph.php" method="get">
-<table width="100%" border="0" cellpadding="0" cellspacing="0" summary="rrd graphs">
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
         <tr>
                 <td>
-			<input type="hidden" name="cat" value="<?php echo "$curcat"; ?>" />
+			<form name="form1" action="status_rrd_graph.php" method="get">
+			<input type="hidden" name="cat" value="<?php echo "$curcat"; ?>">
 			<?php
 			        $tab_array = array();
 				if($curcat == "system") { $tabactive = True; } else { $tabactive = False; }
@@ -448,16 +446,13 @@ function get_dates($curperiod, $graph) {
         <tr>
                 <td>
                         <div id="mainarea">
-                        <table class="tabcont" width="100%" border="0" cellspacing="0" cellpadding="0" summary="main area">
+                        <table class="tabcont" width="100%" border="0" cellspacing="0" cellpadding="0">
                                 <tr>
                                         <td colspan="2" class="list"><p><b><?=gettext("Note: Change of color and/or style may not take effect until the next refresh");?></b></p></td>
 				</tr>
 				<tr>
                                         <td colspan="2" class="list">
 					<?=gettext("Graphs:");?>
-					<?php if (!empty($curzone)): ?>
-					<input type="hidden" name="zone" value="<?= htmlspecialchars($curzone) ?>" />
-					<?php endif; ?>
 					<select name="option" class="formselect" style="z-index: -10;" onchange="document.form1.submit()">
 					<?php
 
@@ -469,7 +464,7 @@ function get_dates($curperiod, $graph) {
 							echo "<option value=\"{$database}\"";
 							$prettyprint = ucwords(str_replace($search, $replace, $database));
 							if($curoption == $database) {
-								echo " selected=\"selected\"";
+								echo " selected";
 							}
 							echo ">" . htmlspecialchars($prettyprint) . "</option>\n";
 						}
@@ -509,7 +504,7 @@ function get_dates($curperiod, $graph) {
 								$prettyprint = ucwords(str_replace($search, $replace, $friendly));
 						}
 						if($curoption == $optionc) {
-							echo " selected=\"selected\"";
+							echo " selected";
 						}
 						echo ">" . htmlspecialchars($prettyprint) . "</option>\n";
 					}
@@ -522,7 +517,7 @@ function get_dates($curperiod, $graph) {
 					<?php
 					foreach ($styles as $style => $styled) {
 						echo "<option value=\"$style\"";
-						if ($style == $curstyle) echo " selected=\"selected\"";
+						if ($style == $curstyle) echo " selected";
 						echo ">" . htmlspecialchars($styled) . "</option>\n";
 					}
 					?>
@@ -536,13 +531,12 @@ function get_dates($curperiod, $graph) {
 						<?php
 						foreach ($periods as $period => $value) {
 							echo "<option value=\"$period\"";
-							if ($period == $curperiod) echo " selected=\"selected\"";
+							if ($period == $curperiod) echo " selected";
 							echo ">" . htmlspecialchars($value) . "</option>\n";
 						}
-						echo "</select>\n";
-						echo "</td></tr>\n";
 					}
 					?>
+					</select>
 					<?php
 
 					if($curcat == "custom") {
@@ -552,11 +546,10 @@ function get_dates($curperiod, $graph) {
 						$end_fmt   = strftime("%m/%d/%Y %H:%M:%S", $end);
 						?>
 						<?=gettext("Start:");?>
-						<input id="startDateTime" title="<?= htmlentities($tz_msg); ?>." type="text" name="start" class="formfldunknown" size="24" value="<?= htmlentities($start_fmt); ?>" />
+						<input id="startDateTime" title="<?= htmlentities($tz_msg); ?>." type="text" name="start" class="formfldunknown" size="24" length="32" value="<?= htmlentities($start_fmt); ?>">
 						<?=gettext("End:");?>
-						<input id="endDateTime" title="<?= htmlentities($tz_msg); ?>." type="text" name="end" class="formfldunknown" size="24" value="<?= htmlentities($end_fmt); ?>" />
-						<input type="submit" name="Submit" value="<?=gettext("Go"); ?>" />
-						</td></tr>
+						<input id="endDateTime" title="<?= htmlentities($tz_msg); ?>." type="text" name="end" class="formfldunknown" size="24" length="32" value="<?= htmlentities($end_fmt); ?>">
+						<input type="submit" name="Submit" value="<?=gettext("Go"); ?>">
 						<?php
 						$curdatabase = $curoption;
 						$graph = "custom-$curdatabase";
@@ -564,11 +557,11 @@ function get_dates($curperiod, $graph) {
 							$id = "{$graph}-{$curoption}-{$curdatabase}";
 							$id = preg_replace('/\./', '_', $id);
 
-							echo "<tr><td colspan=\"2\" class=\"list\">\n";
-							echo "<img border=\"0\" name=\"{$id}\" ";
-							echo "id=\"{$id}\" alt=\"$prettydb Graph\" ";
-							echo "src=\"status_rrd_graph_img.php?start={$start}&amp;end={$end}&amp;database={$curdatabase}&amp;style={$curstyle}&amp;graph={$graph}\" />\n";
-							echo "<br /><hr /><br />\n";
+							echo "<tr><td colspan=2 class=\"list\">\n";
+							echo "<IMG BORDER='0' name='{$id}' ";
+							echo "id='{$id}' ALT=\"$prettydb Graph\" ";
+							echo "SRC=\"status_rrd_graph_img.php?start={$start}&amp;end={$end}&amp;database={$curdatabase}&amp;style={$curstyle}&amp;graph={$graph}\" />\n";
+							echo "<br /><hr><br />\n";								
 							echo "</td></tr>\n";
 						}
 					} else {
@@ -633,21 +626,22 @@ function get_dates($curperiod, $graph) {
 									$dates = get_dates($curperiod, $graph);
 									$start = $dates['start'];
 									$end = $dates['end'];
-									echo "<tr><td colspan=\"2\" class=\"list\">\n";
-									echo "<img border=\"0\" name=\"{$id}\" ";
-									echo "id=\"{$id}\" alt=\"$prettydb Graph\" ";
-									echo "src=\"status_rrd_graph_img.php?start={$start}&amp;end={$end}&amp;database={$curdatabase}&amp;style={$curstyle}&amp;graph={$graph}\" />\n";
-									echo "<br /><hr /><br />\n";
+									echo "<tr><td colspan=2 class=\"list\">\n";
+									echo "<IMG BORDER='0' name='{$id}' ";
+									echo "id='{$id}' ALT=\"$prettydb Graph\" ";
+									echo "SRC=\"status_rrd_graph_img.php?start={$start}&amp;end={$end}&amp;database={$curdatabase}&amp;style={$curstyle}&amp;graph={$graph}\" />\n";
+									echo "<br /><hr><br />\n";								
 									echo "</td></tr>\n";
 								}
 							}
 						}
 					}
 					?>
+					</td>
+				</tr>
 				<tr>
-					<td colspan="2" class="list">
-					<script type="text/javascript">
-					//<![CDATA[
+					<td colspan=2 class="list">
+					<script language="javascript">
 						function update_graph_images() {
 							//alert('updating');
 							var randomid = Math.floor(Math.random()*11);
@@ -719,8 +713,8 @@ function get_dates($curperiod, $graph) {
 							window.setTimeout('update_graph_images()', 355000);
 						}
 						window.setTimeout('update_graph_images()', 355000);
-					//]]>
 					</script>
+					</form>
 					</td>
 				</tr>
 			</table>
@@ -728,7 +722,7 @@ function get_dates($curperiod, $graph) {
 		</td>
 	</tr>
 </table>
-</form>
+
 <?php include("fend.inc"); ?>
 </body>
 </html>
