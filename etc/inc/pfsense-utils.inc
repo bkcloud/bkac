@@ -2594,6 +2594,7 @@ function get_locale_list() {
 		"en_US" => gettext("English"),
 		"pt_BR" => gettext("Portuguese (Brazil)"),
 		"tr" => gettext("Turkish"),
+		"vi" => gettext("TiengViet"),    //Bổ sung tùy chọn tiếng Việt, phù hợp với thư mục /usr/local/share/locale/vi/
 	);
 	asort($locales);
 	return $locales;
@@ -2654,6 +2655,7 @@ $g_languages = array (
 	"es"    => array("codeset" => "UTF-8", "desc" => gettext("Spanish")),
 	"sv"    => array("codeset" => "UTF-8", "desc" => gettext("Swedish")),
 	"sk"    => array("codeset" => "UTF-8", "desc" => gettext("Slovak")),
+	"vi"    => array("codeset" => "UTF-8", "desc" => gettext("TiengViet")),
 	"cs"    => array("codeset" => "UTF-8", "desc" => gettext("Czech"))
 );
 
