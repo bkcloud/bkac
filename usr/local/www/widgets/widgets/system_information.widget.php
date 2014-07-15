@@ -70,13 +70,13 @@ if($_REQUEST['getupdatestatus']) {
 		else {
 			$needs_system_upgrade = false;
 			if (pfs_version_compare($current_installed_buildtime, $current_installed_version, $remote_version) == -1) {
-				echo "<br/><span class=\"red\" id=\"updatealert\"><b>Update available. </b></span><a href=\"/system_firmware_check.php\">Click Here</a> to view update.";
+				echo "<br/><span class=\"red\" id=\"updatealert\"><b>Đã có phiên bản mới. </b></span><a href=\"/system_firmware_check.php\">Vào đây</a> xem chi tiêt.";
 				echo "<script type=\"text/javascript\">";
 				echo "jQuery('#updatealert').effect('pulsate',{times: 30},10000);";
 
 				echo "</script>";
 			} else
-				echo "<br />You are on the latest version.";
+				echo "<br />Đã sử dụng phiên bản mới nhất.";
 		}
 	}
 	exit;
@@ -85,25 +85,8 @@ if($_REQUEST['getupdatestatus']) {
 $curcfg = $config['system']['firmware'];
 
 ?>
-<script>
-	jQuery(function() { 
-		jQuery("#statePB").progressbar( { value: <?php echo get_pfstate(true); ?> } );
-		jQuery("#mbufPB").progressbar( { value: <?php echo get_mbuf(true); ?> } );
-		jQuery("#cpuPB").progressbar( { value:false } );
-		jQuery("#memUsagePB").progressbar( { value: <?php echo mem_usage(); ?> } );
-		jQuery("#diskUsagePB").progressbar( { value: <?php echo disk_usage(); ?> } );
 
-		<?php if($showswap == true): ?>
-			jQuery("#swapUsagePB").progressbar( { value: <?php echo swap_usage(); ?> } );
-		<?php endif; ?>
-		<?php if (get_temp() != ""): ?>
-                	jQuery("#tempPB").progressbar( { value: <?php echo get_temp(); ?> } );
-		<?php endif; ?>
-	});
-</script>
-<link rel="stylesheet" href="javascript/jquery/jquery-ui.custom.css" />
-
-<table width="100%" border="0" cellspacing="0" cellpadding="0" summary="system information">
+<table width="100%" border="0" Icellspacing="0" cellpadding="0" summary="Thông tin hệ thống">
 	<tbody>
 		<tr>
 			<td width="25%" class="vncellt"><?=gettext("Name");?></td>
@@ -115,7 +98,7 @@ $curcfg = $config['system']['firmware'];
 				<strong><?php readfile("/etc/version"); ?></strong>
 				(<?php echo php_uname("m"); ?>)
 				<br />
-				built on <?php readfile("/etc/version.buildtime"); ?>
+				tạo lúc <?php readfile("/etc/version.buildtime"); ?>
 		<?php if(!$g['hideuname']): ?>
 		<br />
 		<div id="uname"><a href="#" onclick='swapuname(); return false;'><?php echo php_uname("s") . " " . php_uname("r"); ?></a></div>
@@ -145,7 +128,7 @@ $curcfg = $config['system']['firmware'];
 			$rw = is_writable("/") ? "(rw)" : "(ro)";
 			?>
 		<tr>
-			<td width="25%" class="vncellt"><?=gettext("NanoBSD Boot Slice");?></td>
+			<td width="25%" class="vncellt">NanoBSD Boot Slice</td>
 			<td width="75%" class="listr">
 				<?=htmlspecialchars(nanobsd_friendly_slice_name($BOOT_DEVICE));?> / <?=htmlspecialchars($BOOTFLASH);?> <?php echo $rw; ?>
 				<?php if ($BOOTFLASH != $ACTIVE_SLICE): ?>
@@ -174,7 +157,7 @@ $curcfg = $config['system']['firmware'];
 		</tr>
 		<?php if ($hwcrypto): ?>
 		<tr>
-			<td width="25%" class="vncellt"><?=gettext("Hardware crypto");?></td>
+			<td width="25%" class="vncellt">Hardware crypto</td>
 			<td width="75%" class="listr"><?=htmlspecialchars($hwcrypto);?></td>
 		</tr>
 		<?php endif; ?>
@@ -187,9 +170,9 @@ $curcfg = $config['system']['firmware'];
             <td width="75%" class="listr">
                 <div id="datetime"><?= date("D M j G:i:s T Y"); ?></div>
             </td>
-        </tr>
+        </tr>			
 		 <tr>
-             <td width="30%" class="vncellt"><?=gettext("DNS server(s)");?></td>
+             <td width="30%" class="vncellt">DNS server(s)</td>
              <td width="70%" class="listr">
 					<?php
 						$dns_servers = get_dns_servers();
@@ -211,8 +194,8 @@ $curcfg = $config['system']['firmware'];
 				<?php	$pfstatetext = get_pfstate();
 					$pfstateusage = get_pfstate(true);
 				?>
-				<div id="statePB"></div>
-				<span id="pfstateusagemeter"><?= $pfstateusage.'%'; ?></span> (<span id="pfstate"><?= htmlspecialchars($pfstatetext); ?></span>)
+				<img src="./themes/<?= $g['theme']; ?>/images/misc/bar_left.gif" height="15" width="4" border="0" align="middle" alt="left bar" /><img src="./themes/<?= $g['theme']; ?>/images/misc/bar_blue.gif" height="15" name="pfstatewidtha" id="pfstatewidtha" width="<?= round($pfstateusage); ?>" border="0" align="middle" alt="red bar" /><img src="./themes/<?= $g['theme']; ?>/images/misc/bar_gray.gif" height="15" name="pfstatewidthb" id="pfstatewidthb" width="<?= (100 - $pfstateusage); ?>" border="0" align="middle" alt="gray bar" /><img src="./themes/<?= $g['theme']; ?>/images/misc/bar_right.gif" height="15" width="5" border="0" align="middle" alt="right bar" />
+				<br/><span id="pfstateusagemeter"><?= $pfstateusage.'%'; ?></span> (<span id="pfstate"><?= htmlspecialchars($pfstatetext); ?></span>)
 		    	<br />
 		    	<a href="diag_dump_states.php"><?=gettext("Show states");?></a>
 			</td>
@@ -224,8 +207,8 @@ $curcfg = $config['system']['firmware'];
 					$mbufstext = get_mbuf();
 					$mbufusage = get_mbuf(true);
 				?>
-				<div id="mbufPB"></div>
-				<span id="mbufusagemeter"><?= $mbufusage.'%'; ?></span> (<span id="mbuf"><?= $mbufstext ?></span>)
+				<img src="./themes/<?= $g['theme']; ?>/images/misc/bar_left.gif" height="15" width="4" border="0" align="middle" alt="left bar" /><img src="./themes/<?= $g['theme']; ?>/images/misc/bar_blue.gif" height="15" name="mbufwidtha" id="mbufwidtha" width="<?= round($mbufusage); ?>" border="0" align="middle" alt="red bar" /><img src="./themes/<?= $g['theme']; ?>/images/misc/bar_gray.gif" height="15" name="mbufwidthb" id="mbufwidthb" width="<?= (100 - $mbufusage); ?>" border="0" align="middle" alt="gray bar" /><img src="./themes/<?= $g['theme']; ?>/images/misc/bar_right.gif" height="15" width="5" border="0" align="middle" alt="right bar" />
+				<br/><span id="mbufusagemeter"><?= $mbufusage.'%'; ?></span> (<span id="mbuf"><?= $mbufstext ?></span>)
 			</td>
 		</tr>
                 <?php if (get_temp() != ""): ?>
@@ -233,7 +216,8 @@ $curcfg = $config['system']['firmware'];
                         <td width="25%" class="vncellt"><?=gettext("Temperature");?></td>
 			<td width="75%" class="listr">
 				<?php $TempMeter = $temp = get_temp(); ?>
-				<div id="tempPB"></div>
+				<img src="./themes/<?= $g['theme']; ?>/images/misc/bar_left.gif" height="15" width="4" border="0" align="middle" alt="left bar" /><img src="./themes/<?= $g['theme']; ?>/images/misc/bar_blue.gif" height="15" name="tempwidtha" id="tempwidtha" width="<?= round($TempMeter); ?>" border="0" align="middle" alt="red bar" /><img src="./themes/<?= $g['theme']; ?>/images/misc/bar_gray.gif" height="15" name="tempwidthb" id="tempwidthb" width="<?= (100 - $TempMeter); ?>" border="0" align="middle" alt="gray bar" /><img src="./themes/<?= $g['theme']; ?>/images/misc/bar_right.gif" height="15" width="5" border="0" align="middle" alt="right bar" />
+				&nbsp;
 				<span id="tempmeter"><?= $temp."&#176;C"; ?></span>
 			</td>
                 </tr>
@@ -247,16 +231,19 @@ $curcfg = $config['system']['firmware'];
 		<tr>
 			<td width="25%" class="vncellt"><?=gettext("CPU usage");?></td>
 			<td width="75%" class="listr">
-				<div id="cpuPB"></div>
-				<span id="cpumeter">(Updating in 10 seconds)</span>
+				<?php $cpuUsage = "0"; ?>
+				<img src="./themes/<?= $g['theme']; ?>/images/misc/bar_left.gif" height="15" width="4" border="0" align="middle" alt="left bar" /><img src="./themes/<?= $g['theme']; ?>/images/misc/bar_blue.gif" height="15" name="cpuwidtha" id="cpuwidtha" width="<?= $cpuUsage; ?>" border="0" align="middle" alt="red bar" /><img src="./themes/<?= $g['theme']; ?>/images/misc/bar_gray.gif" height="15" name="cpuwidthb" id="cpuwidthb" width="<?= (100 - $cpuUsage); ?>" border="0" align="middle" alt="gray bar" /><img src="./themes/<?= $g['theme']; ?>/images/misc/bar_right.gif" height="15" width="5" border="0" align="middle" alt="right bar" />
+				&nbsp;
+				<br/><span id="cpumeter">(Cập nhật trong 10 giây)</span>
 			</td>
 		</tr>
 		<tr>
 			<td width="25%" class="vncellt"><?=gettext("Memory usage");?></td>
 			<td width="75%" class="listr">
 				<?php $memUsage = mem_usage(); ?>
-				<div id="memUsagePB"></div>
-				<span id="memusagemeter"><?= $memUsage.'%'; ?></span> of <?= sprintf("%.0f", `/sbin/sysctl -n hw.physmem` / (1024*1024)) ?> MB
+				<img src="./themes/<?= $g['theme']; ?>/images/misc/bar_left.gif" height="15" width="4" border="0" align="middle" alt="left bar" /><img src="./themes/<?= $g['theme']; ?>/images/misc/bar_blue.gif" height="15" name="memwidtha" id="memwidtha" width="<?= $memUsage; ?>" border="0" align="middle" alt="red bar" /><img src="./themes/<?= $g['theme']; ?>/images/misc/bar_gray.gif" height="15" name="memwidthb" id="memwidthb" width="<?= (100 - $memUsage); ?>" border="0" align="middle" alt="gray bar" /><img src="./themes/<?= $g['theme']; ?>/images/misc/bar_right.gif" height="15" width="5" border="0" align="middle" alt="right bar" />
+				&nbsp;
+				<br/><span id="memusagemeter"><?= $memUsage.'%'; ?></span> of <?= sprintf("%.0f", `/sbin/sysctl -n hw.physmem` / (1024*1024)) ?> MB
 			</td>
 		</tr>
 		<?php if($showswap == true): ?>
@@ -264,8 +251,9 @@ $curcfg = $config['system']['firmware'];
 			<td width="25%" class="vncellt"><?=gettext("SWAP usage");?></td>
 			<td width="75%" class="listr">
 				<?php $swapusage = swap_usage(); ?>
-				<div id="swapUsagePB"></div>
-				<span id="swapusagemeter"><?= $swapusage.'%'; ?></span> of <?= sprintf("%.0f", `/usr/sbin/swapinfo -m | /usr/bin/grep -v Device | /usr/bin/awk '{ print $2;}'`) ?> MB
+				<img src="./themes/<?= $g['theme']; ?>/images/misc/bar_left.gif" height="15" width="4" border="0" align="middle" alt="left bar" /><img src="./themes/<?= $g['theme']; ?>/images/misc/bar_blue.gif" height="15" width="<?= $swapusage; ?>" border="0" align="middle" alt="red bar" /><img src="./themes/<?= $g['theme']; ?>/images/misc/bar_gray.gif" height="15" width="<?= (100 - $swapusage); ?>" border="0" align="middle" alt="gray bar" /><img src="./themes/<?= $g['theme']; ?>/images/misc/bar_right.gif" height="15" width="5" border="0" align="middle" alt="right bar" />
+				&nbsp;
+				<br/><span id="swapusagemeter"><?= $swapusage.'%'; ?></span> of <?= sprintf("%.0f", `/usr/sbin/swapinfo -m | /usr/bin/grep -v Device | /usr/bin/awk '{ print $2;}'`) ?> MB
 			</td>
 		</tr>
 		<?php endif; ?>
@@ -273,8 +261,9 @@ $curcfg = $config['system']['firmware'];
 			<td width="25%" class="vncellt"><?=gettext("Disk usage");?></td>
 			<td width="75%" class="listr">
 				<?php $diskusage = disk_usage(); ?>
-				<div id="diskUsagePB"></div>
-				<span id="diskusagemeter"><?= $diskusage.'%'; ?></span> of <?= `/bin/df -h / | /usr/bin/grep -v 'Size' | /usr/bin/awk '{ print $2 }'` ?>
+				<img src="./themes/<?= $g["theme"]; ?>/images/misc/bar_left.gif" height="15" width="4" border="0" align="middle" alt="left bar" /><img src="./themes/<?= $g["theme"]; ?>/images/misc/bar_blue.gif" height="15" width="<?= $diskusage; ?>" border="0" align="middle" alt="red bar" /><img src="./themes/<?= $g["theme"]; ?>/images/misc/bar_gray.gif" height="15" width="<?= (100 - $diskusage); ?>" border="0" align="middle" alt="gray bar" /><img src="./themes/<?= $g["theme"]; ?>/images/misc/bar_right.gif" height="15" width="5" border="0" align="middle" alt="right bar" />
+				&nbsp;
+				<br/><span id="diskusagemeter"><?= $diskusage.'%'; ?></span> of <?= `/bin/df -h / | /usr/bin/grep -v 'Size' | /usr/bin/awk '{ print $2 }'` ?>
 			</td>
 		</tr>
 	</tbody>

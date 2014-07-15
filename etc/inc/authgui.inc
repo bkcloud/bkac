@@ -51,7 +51,7 @@ if (!session_auth()) {
  * We give them access only to the appropriate pages based on
  * the user or group privileges.
  */
-$allowedpages = getAllowedPages($_SESSION['Username']);
+$allowedpages = getAllowedPages($HTTP_SERVER_VARS['AUTH_USER']);
 
 /*
  * redirect to first allowed page if requesting a wrong url
@@ -112,7 +112,7 @@ function display_error_form($http_code, $desc) {
 	<head>
 		<script type="text/javascript" src="/javascript/jquery.js"></script>
 		<title><?=$http_code?></title>
-		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<link rel="shortcut icon" href="/themes/<?= $g['theme'] ?>/images/icons/favicon.ico" />
 		<?php if (file_exists("{$g['www_path']}/themes/{$g['theme']}/login.css")): ?>
 		<link rel="stylesheet" type="text/css" href="/themes/<?= $g['theme'] ?>/login.css" media="all" />
@@ -233,7 +233,7 @@ $have_cookies = isset($_COOKIE["cookie_test"]);
 		</script>
 
 		<title><?=gettext("Login"); ?></title>
-		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<link rel="shortcut icon" href="/themes/<?= $g['theme'] ?>/images/icons/favicon.ico" />
 		<?php if (file_exists("{$g['www_path']}/themes/{$g['theme']}/login.css")): ?>
 		<link rel="stylesheet" type="text/css" href="/themes/<?= $g['theme'] ?>/login.css" media="all" />
@@ -269,21 +269,21 @@ $have_cookies = isset($_COOKIE["cookie_test"]);
 				<div id="inputerrors"><?=$_SESSION['Login_Error'];?></div>
 				<p>
 					<span style="text-align:left">
-						<?=gettext("Username:"); ?><br />
+						Tài khoản<br />
 						<input onclick="clearError();" onchange="clearError();" id="usernamefld" type="text" name="usernamefld" class="formfld user" tabindex="1" />
 					</span>
 				</p>
 				<p>
 					<br />
 					<span style="text-align:left">
-						<?=gettext("Password:"); ?> <br />
+						Mật khẩu <br />
 						<input onclick="clearError();" onchange="clearError();" id="passwordfld" type="password" name="passwordfld" class="formfld pwd" tabindex="2" />
 					</span>
 				</p>
 				<p>
 					<br />
 					<span style="text-align:center; font-weight: normal ; font-style: italic">
-						<?=gettext("Enter username and password to login."); ?>
+						Nhập tài khoản và mật khẩu để đăng nhập.
 					</span>
 
 					<?php if (!$have_cookies && isset($_POST['login'])): ?>
@@ -295,7 +295,7 @@ $have_cookies = isset($_COOKIE["cookie_test"]);
 				</p>        
 				<p>
 					<span style="text-align:center">
-						<input type="submit" name="login" class="formbtn" value="<?=gettext("Login"); ?>" tabindex="3" />
+						<input type="submit" name="login" class="formbtn" value="Đăng nhập" tabindex="3" />
 					</span>
 				</p>
 			</form>
