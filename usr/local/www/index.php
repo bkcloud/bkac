@@ -67,11 +67,6 @@ if ($_REQUEST['act'] == 'alias_info_popup' && !preg_match("/\D/",$_REQUEST['alia
 if($g['disablecrashreporter'] != true) {
 	// Check to see if we have a crash report
 	$x = 0;
-	if(file_exists("/tmp/PHP_errors.log")) {
-		$total = `/usr/bin/grep -vi warning /tmp/PHP_errors.log | /usr/bin/wc -l | /usr/bin/awk '{ print $1 }'`;
-		if($total > 0)
-			$x++;
-	}
 	$crash = glob("/var/crash/*");
 	$skip_files = array(".", "..", "minfree", "");
 	if(is_array($crash)) {
@@ -159,10 +154,10 @@ if (!is_array($config['widgets'])) {
 		echo <<<EOF
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="<?=system_get_language_code();?>" xml:lang="<?=system_get_language_code();?>">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 	<title>{$g['product_name']}.localdomain - {$g['product_name']} first time setup</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=<?=system_get_language_codeset();?>" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<link rel="stylesheet" type="text/css" href="/niftycssprintCode.css" media="print" />
 	<script type="text/javascript">var theme = "{$g['theme']}"</script>
 	<script type="text/javascript" src="/themes/{$g['theme']}/loader.js"></script>
@@ -471,7 +466,7 @@ include("head.inc");
 
 <script type="text/javascript">
 //<![CDATA[
-columns = ['col1','col2','col3','col4', 'col5','col6','col7','col8','col9','col10'];
+columns = ['col1','col2'];
 //]]>
 </script>
 
@@ -524,11 +519,11 @@ pfSense_handle_custom_code("/usr/local/pkg/dashboard/pre_dashboard");
 
 <div id="welcomecontainer" style="display:none">
 		<div id="welcome-container">
-			<div style="float:left;width:100%;padding: 2px">
+			<div style="float:left;width:80%;padding: 2px">
 				<h1><?=gettext("Welcome to the Dashboard page"); ?>!</h1>
 			</div>
-			<div onclick="domTT_close(this);showAllWidgets();" style="width:87%; position: absolute; cursor:pointer; padding: 10px;" >
-				<img src="./themes/<?= $g['theme']; ?>/images/icons/icon_close.gif" alt="close" style="float:right" />
+			<div onclick="domTT_close(this);showAllWidgets();" style="float:right;width:8%; cursor:pointer;padding: 5px;" >
+				<img src="./themes/<?= $g['theme']; ?>/images/icons/icon_close.gif" alt="close" />
 			</div>
 			<div style="clear:both;"></div>
 			<p>
@@ -550,8 +545,7 @@ pfSense_handle_custom_code("/usr/local/pkg/dashboard/pre_dashboard");
 &nbsp;&nbsp;&nbsp;
 		<input id="submit" name="submit" type="submit" style="display:none" onclick="return updatePref();" class="formbtn" value="<?=gettext("Save Settings");?>" />
 </form>
-<!-- fakeClass contains no CSS but is used as an identifier in theme pfsense_ng_fs - loader.js -->
-<div id="niftyOutter" class="fakeClass">
+<div id="niftyOutter">
 	<?php
 	$totalwidgets = count($widgetfiles);
 	$halftotal = $totalwidgets / 2 - 2;
@@ -560,7 +554,7 @@ pfSense_handle_custom_code("/usr/local/pkg/dashboard/pre_dashboard");
 	$printed = false;
 	$firstprint = false;
 	?>
-	<div id="col1" style="float:left;width:49%;padding-bottom:40px" class="ui-sortable">
+	<div id="col1" style="float:left;width:49%;padding-bottom:40px">
 	<?php
 
 	foreach($widgetlist as $widget) {
@@ -637,42 +631,22 @@ pfSense_handle_custom_code("/usr/local/pkg/dashboard/pre_dashboard");
 			}
 		}
 
-		if( substr($g['theme'], -3) != "_fs") {
-			if ($config['widgets'] && $pconfig['sequence'] != ""){
-				if ($colpos[$widgetcounter] == "col2" && $printed == false)
-				{
-					$printed = true;
-					?>
-					</div>
-					<div id="col2" style="float:right;width:49%;padding-bottom:40px" class="ui-sortable">
-					<?php
-				}
-			}
-			else if ($widgetcounter >= $halftotal && $printed == false){
+		if ($config['widgets'] && $pconfig['sequence'] != ""){
+			if ($colpos[$widgetcounter] == "col2" && $printed == false)
+			{
 				$printed = true;
 				?>
 				</div>
-				<div id="col2" style="float:right;width:49%;padding-bottom:40px" class="ui-sortable">
+				<div id="col2" style="float:right;width:49%;padding-bottom:40px">
 				<?php
 			}
 		}
-		else {
-			if ($config['widgets'] && $pconfig['sequence'] != "") {
-				if ($colpos[$widgetcounter] == "col2" && $printed == false)
-				{
-					$printed = true;
-					?>
-					</div>
-					<div id="col2" style="float:right;width:49%;padding-bottom:40px" class="ui-sortable">
-					<?php
-				}
-				else { ?>
-					<script language="javascript" type="text/javascript">
-					var colpos = "<?=$colpos[$widgetcounter]?>";
-					createColumn(colpos);					
-					</script>
-				<?php }
-			}		
+		else if ($widgetcounter >= $halftotal && $printed == false){
+			$printed = true;
+			?>
+			</div>
+			<div id="col2" style="float:right;width:49%;padding-bottom:40px">
+			<?php
 		}
 
 		?>
@@ -747,7 +721,8 @@ pfSense_handle_custom_code("/usr/local/pkg/dashboard/pre_dashboard");
 //<![CDATA[
 	jQuery(document).ready(function(in_event)
 	{
-			jQuery('.ui-sortable').sortable({connectWith: '.ui-sortable', dropOnEmpty: true, handle: '.widgetheader', change: showSave});
+			jQuery('#col1').sortable({connectWith: '#col2', dropOnEmpty: true, handle: '.widgetheader', change: showSave});
+			jQuery('#col2').sortable({connectWith: '#col1', dropOnEmpty: true, handle: '.widgetheader', change: showSave});
 
 	<?php if (!$config['widgets']  && $pconfig['sequence'] != ""){ ?>
 			hideAllWidgets();
