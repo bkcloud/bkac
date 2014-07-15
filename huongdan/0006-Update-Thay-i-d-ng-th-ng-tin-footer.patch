@@ -1,0 +1,33 @@
+From b30c5195747c451b04799a101ab7719730d2bc72 Mon Sep 17 00:00:00 2001
+From: neittien0110 <neittien0110@gmail.com>
+Date: Tue, 15 Jul 2014 17:04:24 +0700
+Subject: [PATCH 06/13] =?UTF-8?q?Update:=20Thay=20=C4=91=E1=BB=95i=20d?=
+ =?UTF-8?q?=C3=B2ng=20th=C3=B4ng=20tin=20=20=E1=BB=9F=20footer=20BKAC,=20B?=
+ =?UTF-8?q?ach=20Khoa=20Access=20Controller=20k=E1=BA=BF=20th=E1=BB=ABa=20?=
+ =?UTF-8?q?t=E1=BB=AB=20pfSense.=20[Xem=20license.]?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ usr/local/www/fend.inc | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/usr/local/www/fend.inc b/usr/local/www/fend.inc
+index 6ee1028..5086b29 100755
+--- a/usr/local/www/fend.inc
++++ b/usr/local/www/fend.inc
+@@ -7,9 +7,7 @@
+ 	</div> <!-- Content DIV -->
+ 	
+ 	<div id="footer">
+-	<a target="_blank" href="<?=$g['product_website_footer']?>" class="redlnk"><?=$g['product_name']?></a> is &copy;
+-	 <?=$g['product_copyright_years']?> by <a href="<?=$g['product_copyright_url']?>" class="tblnk"><?=$g['product_copyright']?></a>. All Rights Reserved.
+-	[<a href="/license.php" class="tblnk">view license</a>] 
++	<a target="_blank" href="<?=$g['product_website_footer']?>" class="redlnk">BKAC, Bach Khoa Access Controller kế thừa từ <?=$g['product_name']?>.</a> [<a href="/license.php" class="tblnk">Xem license.</a>]
+ 	</div> <!-- Footer DIV -->
+ 
+ </div> <!-- Wrapper Div -->
+-- 
+1.9.1
+

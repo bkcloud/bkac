@@ -1,0 +1,57 @@
+From cc4fde8f1ffb70541252531b780da03fd87bafac Mon Sep 17 00:00:00 2001
+From: neittien0110 <neittien0110@gmail.com>
+Date: Tue, 15 Jul 2014 17:28:22 +0700
+Subject: [PATCH 10/13] =?UTF-8?q?Fix=20bug:=20L=E1=BB=97i=20kh=C3=B4ng=20s?=
+ =?UTF-8?q?ave=20=C4=91=C6=B0=E1=BB=A3c=20c=C3=A2u=20h=C3=ACnh=20NAT=20khi?=
+ =?UTF-8?q?=20=E1=BB=9F=20giao=20di=E1=BB=87n=20ti=E1=BA=BFng=20Vi?=
+ =?UTF-8?q?=E1=BB=87t.=20Nguy=C3=AAn=20nh=C3=A2n:=20n=C3=BAt=20Submit=20?=
+ =?UTF-8?q?=C4=91=E1=BB=95i=20t=C3=AAn=20th=C3=A0nh=20"L=C6=B0u=20l?=
+ =?UTF-8?q?=E1=BA=A1i".=20T=C3=AAn=20n=C3=A0y=20c=C5=A9ng=20b=E1=BB=8B=20k?=
+ =?UTF-8?q?i=E1=BB=83m=20tra.=20Gi=E1=BA=A3i=20ph=C3=A1p:=20b=E1=BB=8F=20q?=
+ =?UTF-8?q?ua=20key=20c=C3=B3=20t=C3=AAn=20Submit=20trong=20g=C3=B3i=20POS?=
+ =?UTF-8?q?T.=20Vi=E1=BB=87c=20g=E1=BB=ADi=20tham=20s=E1=BB=91=20n=C3=A0y?=
+ =?UTF-8?q?=20l=C3=A0=20th=E1=BB=ABa=20v=C3=A0=20c=C3=B3=20h=E1=BA=A1i.?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ usr/local/www/firewall_nat_edit.php | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/usr/local/www/firewall_nat_edit.php b/usr/local/www/firewall_nat_edit.php
+index 38c3a84..f7c31cd 100755
+--- a/usr/local/www/firewall_nat_edit.php
++++ b/usr/local/www/firewall_nat_edit.php
+@@ -112,7 +112,9 @@ if (isset($_GET['dup']))
+  *  cannot think he is slick and perform a XSS attack on the unwilling
+  */
+ unset($input_errors);
+-foreach ($_POST as $key => $value) {
++foreach ($_POST as $key => $value) 
++if ($key <> "Submit")
++{
+ 	$temp = $value;
+ 	$newpost = htmlentities($temp);
+ 	if($newpost <> $temp)
+@@ -208,7 +210,7 @@ if ($_POST) {
+ 		$reqdfieldsn[] = gettext("Redirect target IP");
+ 	}
+ 
+-	do_input_validation($_POST, $reqdfields, $reqdfieldsn, $input_errors);
++	do_input_validation($_POST, $reqdfields, $reqdfieldsn, &$input_errors);
+ 
+ 	if (!$_POST['srcbeginport']) {
+ 		$_POST['srcbeginport'] = 0;
+@@ -912,7 +914,7 @@ $has_updated_time = (isset($a_nat[$id]['updated']) && is_array($a_nat[$id]['upda
+ <script type="text/javascript">
+ //<![CDATA[
+ 	var addressarray = <?= json_encode(get_alias_list(array("host", "network", "openvpn", "urltable"))) ?>;
+-	var customarray  = <?= json_encode(get_alias_list(array("port", "url_ports", "urltable_ports"))) ?>;
++	var customarray  = <?= json_encode(get_alias_list("port")) ?>;
+ 
+ 	var oTextbox1 = new AutoSuggestControl(document.getElementById("localip"), new StateSuggestions(addressarray));
+ 	var oTextbox2 = new AutoSuggestControl(document.getElementById("src"), new StateSuggestions(addressarray));
+-- 
+1.9.1
+

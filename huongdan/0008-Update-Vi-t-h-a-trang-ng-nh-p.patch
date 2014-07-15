@@ -1,0 +1,81 @@
+From aa464dfabed2a994c2b7ddabc1e372fafcd2ac0c Mon Sep 17 00:00:00 2001
+From: neittien0110 <neittien0110@gmail.com>
+Date: Tue, 15 Jul 2014 17:13:14 +0700
+Subject: [PATCH 08/13] =?UTF-8?q?Update:=20Vi=E1=BB=87t=20h=C3=B3a=20trang?=
+ =?UTF-8?q?=20=C4=91=C4=83ng=20nh=E1=BA=ADp?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ etc/inc/authgui.inc | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/etc/inc/authgui.inc b/etc/inc/authgui.inc
+index fe9d2ca..9af45b8 100644
+--- a/etc/inc/authgui.inc
++++ b/etc/inc/authgui.inc
+@@ -51,7 +51,7 @@ if (!session_auth()) {
+  * We give them access only to the appropriate pages based on
+  * the user or group privileges.
+  */
+-$allowedpages = getAllowedPages($_SESSION['Username']);
++$allowedpages = getAllowedPages($HTTP_SERVER_VARS['AUTH_USER']);
+ 
+ /*
+  * redirect to first allowed page if requesting a wrong url
+@@ -112,7 +112,7 @@ function display_error_form($http_code, $desc) {
+ 	<head>
+ 		<script type="text/javascript" src="/javascript/jquery.js"></script>
+ 		<title><?=$http_code?></title>
+-		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
++		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+ 		<link rel="shortcut icon" href="/themes/<?= $g['theme'] ?>/images/icons/favicon.ico" />
+ 		<?php if (file_exists("{$g['www_path']}/themes/{$g['theme']}/login.css")): ?>
+ 		<link rel="stylesheet" type="text/css" href="/themes/<?= $g['theme'] ?>/login.css" media="all" />
+@@ -233,7 +233,7 @@ $have_cookies = isset($_COOKIE["cookie_test"]);
+ 		</script>
+ 
+ 		<title><?=gettext("Login"); ?></title>
+-		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
++		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ 		<link rel="shortcut icon" href="/themes/<?= $g['theme'] ?>/images/icons/favicon.ico" />
+ 		<?php if (file_exists("{$g['www_path']}/themes/{$g['theme']}/login.css")): ?>
+ 		<link rel="stylesheet" type="text/css" href="/themes/<?= $g['theme'] ?>/login.css" media="all" />
+@@ -269,21 +269,21 @@ $have_cookies = isset($_COOKIE["cookie_test"]);
+ 				<div id="inputerrors"><?=$_SESSION['Login_Error'];?></div>
+ 				<p>
+ 					<span style="text-align:left">
+-						<?=gettext("Username:"); ?><br />
++						Tài khoản<br />
+ 						<input onclick="clearError();" onchange="clearError();" id="usernamefld" type="text" name="usernamefld" class="formfld user" tabindex="1" />
+ 					</span>
+ 				</p>
+ 				<p>
+ 					<br />
+ 					<span style="text-align:left">
+-						<?=gettext("Password:"); ?> <br />
++						Mật khẩu <br />
+ 						<input onclick="clearError();" onchange="clearError();" id="passwordfld" type="password" name="passwordfld" class="formfld pwd" tabindex="2" />
+ 					</span>
+ 				</p>
+ 				<p>
+ 					<br />
+ 					<span style="text-align:center; font-weight: normal ; font-style: italic">
+-						<?=gettext("Enter username and password to login."); ?>
++						Nhập tài khoản và mật khẩu để đăng nhập.
+ 					</span>
+ 
+ 					<?php if (!$have_cookies && isset($_POST['login'])): ?>
+@@ -295,7 +295,7 @@ $have_cookies = isset($_COOKIE["cookie_test"]);
+ 				</p>        
+ 				<p>
+ 					<span style="text-align:center">
+-						<input type="submit" name="login" class="formbtn" value="<?=gettext("Login"); ?>" tabindex="3" />
++						<input type="submit" name="login" class="formbtn" value="Đăng nhập" tabindex="3" />
+ 					</span>
+ 				</p>
+ 			</form>
+-- 
+1.9.1
+

@@ -1,0 +1,320 @@
+From 6ae12722eb9693e97c629a83e026cbbf72199e8a Mon Sep 17 00:00:00 2001
+From: neittien0110 <neittien0110@gmail.com>
+Date: Tue, 15 Jul 2014 17:37:06 +0700
+Subject: [PATCH 12/13] =?UTF-8?q?Update:=20Vi=E1=BB=87t=20h=C3=B3a=20c?=
+ =?UTF-8?q?=C3=A1c=20widget=20tr=C3=AAn=20trang=20ch=E1=BB=A7?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../www/widgets/include/interface_statistics.inc   |   4 +-
+ usr/local/www/widgets/include/interfaces.inc       |   4 +-
+ usr/local/www/widgets/include/log.inc              |   4 +-
+ usr/local/www/widgets/include/services_status.inc  |   4 +-
+ .../widgets/widgets/installed_packages.widget.php  |   6 +-
+ .../widgets/interface_statistics.widget.php        | 102 +++++++++++----------
+ 6 files changed, 63 insertions(+), 61 deletions(-)
+
+diff --git a/usr/local/www/widgets/include/interface_statistics.inc b/usr/local/www/widgets/include/interface_statistics.inc
+index c789418..fe6332d 100644
+--- a/usr/local/www/widgets/include/interface_statistics.inc
++++ b/usr/local/www/widgets/include/interface_statistics.inc
+@@ -1,5 +1,5 @@
+ <?php
+ //set variable for custom title
+-$interface_statistics_title = "Interface Statistics";
++$interface_statistics_title = "Thống kê trên giao diện mạng";
+ $interface_statistics_title_link = "status_interfaces.php";
+-?>
+\ No newline at end of file
++?>
+diff --git a/usr/local/www/widgets/include/interfaces.inc b/usr/local/www/widgets/include/interfaces.inc
+index 6c19a6b..2501c7d 100644
+--- a/usr/local/www/widgets/include/interfaces.inc
++++ b/usr/local/www/widgets/include/interfaces.inc
+@@ -1,6 +1,6 @@
+ <?php
+ //set variable for custom title
+-$interfaces_title = "Interfaces";
++$interfaces_title = "Giao diện mạng";
+ $interfaces_title_link = "status_interfaces.php";
+ 
+-?>
+\ No newline at end of file
++?>
+diff --git a/usr/local/www/widgets/include/log.inc b/usr/local/www/widgets/include/log.inc
+index 7ad453a..eeaacf4 100644
+--- a/usr/local/www/widgets/include/log.inc
++++ b/usr/local/www/widgets/include/log.inc
+@@ -1,6 +1,6 @@
+ <?php
+ //set variable for custom title
+-$log_title = "Firewall Logs";
++$log_title = "Logs hoạt động Tường lửa";
+ $log_title_link = "diag_logs_filter.php";
+ 
+-?>
+\ No newline at end of file
++?>
+diff --git a/usr/local/www/widgets/include/services_status.inc b/usr/local/www/widgets/include/services_status.inc
+index 685aee4..7de9ea7 100644
+--- a/usr/local/www/widgets/include/services_status.inc
++++ b/usr/local/www/widgets/include/services_status.inc
+@@ -1,7 +1,7 @@
+ <?php
+ 
+ //set variable for custom title
+-$services_status_title = "Services Status";
++$services_status_title = "Trạng thái của các dịch vụ";
+ $services_status_title_link = "status_services.php";
+ 
+-?>
+\ No newline at end of file
++?>
+diff --git a/usr/local/www/widgets/widgets/installed_packages.widget.php b/usr/local/www/widgets/widgets/installed_packages.widget.php
+index 800bb58..ed6164c 100644
+--- a/usr/local/www/widgets/widgets/installed_packages.widget.php
++++ b/usr/local/www/widgets/widgets/installed_packages.widget.php
+@@ -88,9 +88,9 @@ $updateavailable = false;
+ 					$updateavailable = true;
+ 					?>
+ 					<div id="updatediv-<?php echo $y; ?>" style="color:red">
+-						<b>Update Available!</b></div><div style="float:left">
+-						Current: <?php echo $latest_package; ?><br/>
+-						Installed: <?php echo $pkg['version']; ?></div><div style="float:right">
++						<b>Đã có phiên bản mới!</b></div><div style="float:left">
++						Phiên bản mới: <?php echo $latest_package; ?><br/>
++						Đang sử dụng: <?php echo $pkg['version']; ?></div><div style="float:right">
+ 					<a href="pkg_mgr_install.php?mode=reinstallpkg&amp;pkg=<?= $pkg['name']; ?>"><img title="Update this package." src="./themes/<?= $g['theme']; ?>/images/icons/icon_reinstall_pkg.gif" width="17" height="17" border="0" alt="reinstall" /></a>
+ 					</div>
+ 					<?php
+diff --git a/usr/local/www/widgets/widgets/interface_statistics.widget.php b/usr/local/www/widgets/widgets/interface_statistics.widget.php
+index 75cf31e..1c74670 100644
+--- a/usr/local/www/widgets/widgets/interface_statistics.widget.php
++++ b/usr/local/www/widgets/widgets/interface_statistics.widget.php
+@@ -1,6 +1,6 @@
+ <?php
+ /*
+-        $Id: interface_statistics.widget.php
++        $Id: interface_statistics.widget.php 
+         Copyright 2007 Scott Dale
+         Part of pfSense widgets (www.pfsense.com)
+         originally based on m0n0wall (http://m0n0.ch/wall)
+@@ -39,7 +39,7 @@ require_once("functions.inc");
+ require_once("/usr/local/www/widgets/include/interface_statistics.inc");
+ 
+ 		$ifdescrs = get_configured_interface_with_descr();
+-
++		
+ 		$array_in_packets = array();
+ 		$array_out_packets = array();
+ 		$array_in_bytes = array();
+@@ -49,12 +49,12 @@ require_once("/usr/local/www/widgets/include/interface_statistics.inc");
+ 		$array_collisions = array();
+ 		$array_interrupt = array();
+ 		$interfacecounter = 0;
+-
++		
+ 		//build data arrays
+ 		foreach ($ifdescrs as $ifdescr => $ifname){
+ 			$ifinfo = get_interface_info($ifdescr);
+ 			$interfacecounter++;
+-			if ($ifinfo['status'] != "down"){
++			if ($ifinfo['status'] != "down"){ 		
+ 				$array_in_packets[] = $ifinfo['inpkts'];
+ 				$array_out_packets[] = $ifinfo['outpkts'];
+ 				$array_in_bytes[] = format_bytes($ifinfo['inbytes']);
+@@ -72,83 +72,84 @@ require_once("/usr/local/www/widgets/include/interface_statistics.inc");
+ 				else
+ 					$array_collisions[] = "n/a";
+ 			}
+-
+-
++					
++			
+ 		}//end for
+-
+-
+-
+-
++		
++	
++		
++		
+ 		?>
++		<div style="padding: 5px">			
+               <div id="int_labels" style="float:left;width:32%">
+ 				<table width="100%" border="0" cellspacing="0" cellpadding="0" summary="interfaces statistics">
+-					<tr><td class="widgetsubheader" style="height:25px">&nbsp;&nbsp;&nbsp;</td></tr>
++					<tr><td class="widgetsubheader" style="height:25px">&nbsp;&nbsp;&nbsp;</td></tr>	
+ 					<tr>
+-	                	<td class="vncellt" style="height:25px">Packets In</td>
+-					</tr>
++	                	<td class="vncellt" style="height:25px">Gói tin Vào</td>
++					</tr>	              
+ 		            <tr>
+-		                <td class="vncellt" style="height:25px">Packets Out</td>
+-		           </tr>
++		                <td class="vncellt" style="height:25px">Gói tin Ra</td>
++		           </tr>	              
+ 	               <tr>
+-	                <td class="vncellt" style="height:25px">Bytes In</td>
+-				    </tr>
++	                <td class="vncellt" style="height:25px">Số byte Vào</td>
++				    </tr>	              
+ 	              <tr>
+-	                <td class="vncellt" style="height:25px">Bytes Out</td>
+-				  </tr>
++	                <td class="vncellt" style="height:25px">Số byte Ra</td>
++				  </tr>	              
+ 	              <tr>
+-	                <td class="vncellt" style="height:25px">Errors In</td>
+-				 </tr>
++	                <td class="vncellt" style="height:25px">Số lỗi Vào</td>
++				 </tr>	              
+ 	              <tr>
+-	                <td class="vncellt" style="height:25px">Errors Out</td>
+-				</tr>
++	                <td class="vncellt" style="height:25px">Số lỗi Ra</td>
++				</tr>              
+ 	              <tr>
+-	                <td class="vncellt" style="height:25px">Collisions</td>
+-				 </tr>
++	                <td class="vncellt" style="height:25px">Xung đột</td>
++				 </tr>	              
+ 	              </table>
+ 	          </div>
+ 	          <div id="interfacestats" style="float:right;overflow: auto; width:68%">
+-
++	                   
+ 	          <table width="100%" border="0" cellspacing="0" cellpadding="0" summary="the stats">
+ 	              <tr>
+-		                <?php
++		                <?php 
+ 		               		$interface_names = array();
+-		                	foreach ($ifdescrs as $ifdescr => $ifname):
++		                	foreach ($ifdescrs as $ifdescr => $ifname): 
+ 		                	$ifinfo = get_interface_info($ifdescr);
+ 		                	if ($ifinfo['status'] != "down"){ ?>
+ 			                	<td class="widgetsubheader nowrap" style="height:25px">
+ 			                  		<?=htmlspecialchars($ifname);?>
+ 								</td>
+-							<?php
++							<?php 							
+ 							//build array of interface names
+ 							$interface_names[] = $ifname;
+-							}
++							} 
+ 							endforeach; ?>
+ 		              </tr>
+-
++		              
+ 		              <tr>
+-			                <?php
++			                <?php 
+ 			                $counter = 1;
+ 			                foreach ($array_in_packets as $data): ?>
+ 							<td class="listr nowrap" id="stat<?php echo $counter?>" style="height:25px">
+ 								<?=htmlspecialchars($data);?>
+ 			                </td>
+-			                <?php
++			                <?php 
+ 			                $counter = $counter + 7;
+ 			                endforeach; ?>
+ 	              		</tr>
+-
++	              		
+ 	              		<tr>
+-			                <?php
++			                <?php 
+ 			                $counter = 2;
+ 			                foreach ($array_out_packets as $data): ?>
+ 							<td class="listr nowrap" id="stat<?php echo $counter;?>" style="height:25px">
+ 								<?=htmlspecialchars($data);?>
+ 			                </td>
+-			                <?php
++			                <?php 
+ 			                $counter = $counter + 7;
+ 			                endforeach; ?>
+ 	              		</tr>
+-
++			               
+ 			            <tr>
+ 			                <?php 
+ 			                $counter = 3;
+@@ -156,23 +157,23 @@ require_once("/usr/local/www/widgets/include/interface_statistics.inc");
+ 							<td class="listr nowrap" id="stat<?php echo $counter;?>" style="height:25px">
+ 								<?=htmlspecialchars($data);?>
+ 			                </td>
+-			                <?php
++			                <?php 
+ 			                $counter = $counter + 7;
+ 			                endforeach; ?>
+ 	          			</tr>
+-
++	          			
+ 	          			<tr>
+-			                <?php
++			                <?php 
+ 			                $counter = 4;
+ 			                foreach ($array_out_bytes as $data): ?>
+ 							<td class="listr nowrap" id="stat<?php echo $counter;?>" style="height:25px">
+ 								<?=htmlspecialchars($data);?>
+ 			                </td>
+-			                <?php
++			                <?php 
+ 			                $counter = $counter + 7;
+ 			                endforeach; ?>
+ 	            		</tr>
+-
++	            		
+ 	            		<tr>
+ 			                <?php
+ 			                $counter = 5;
+@@ -180,33 +181,34 @@ require_once("/usr/local/www/widgets/include/interface_statistics.inc");
+ 									<td class="listr nowrap" id="stat<?php echo $counter;?>" style="height:25px">
+ 										<?=htmlspecialchars($data);?>
+ 					                </td>
+-				                <?php
++				                <?php 
+ 				                $counter = $counter + 7;
+ 				                endforeach; ?>
+ 	              		</tr>
+-
++		                	
+ 		                <tr>
+-		                	<?php
++		                	<?php 
+ 		                	$counter = 6;
+ 			               foreach ($array_out_errors as $data): ?>
+ 								<td class="listr nowrap" id="stat<?php echo $counter;?>" style="height:25px">
+ 									<?=htmlspecialchars($data);?>
+ 				                </td>
+-			                <?php
++			                <?php 
+ 			                $counter = $counter + 7;
+ 			                endforeach; ?>
+ 	             		</tr>
+-
+-		                <tr>
+-		                	<?php
++		                	
++		                <tr>	
++		                	<?php  
+ 		                	$counter = 7;
+ 				                foreach ($array_collisions as $data): ?>
+ 								<td class="listr nowrap" id="stat<?php echo $counter;?>" style="height:25px">
+ 									<?=htmlspecialchars($data);?>
+ 				                </td>
+-			                <?php
++			                <?php 
+ 			                $counter = $counter + 7;
+ 			                endforeach; ?>
+ 						</tr>
+ 	             </table>
+ 			</div>
++	</div>
+-- 
+1.9.1
+

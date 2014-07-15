@@ -1,0 +1,38 @@
+From cdb4a7a1105c6afad8a0f996a824697e6364bf92 Mon Sep 17 00:00:00 2001
+From: neittien0110 <neittien0110@gmail.com>
+Date: Tue, 15 Jul 2014 16:47:52 +0700
+Subject: [PATCH 03/13] =?UTF-8?q?Fix:=20B=E1=BB=95=20sung=20t=C3=B9y=20ch?=
+ =?UTF-8?q?=E1=BB=8Dn=20ng=C3=B4n=20ng=E1=BB=AF=20ti=E1=BA=BFng=20Vi?=
+ =?UTF-8?q?=E1=BB=87t=20trong=20combobox=20c=E1=BB=A7a=20trang=20web=20C?=
+ =?UTF-8?q?=E1=BA=A5u=20h=C3=ACnh?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ etc/inc/pfsense-utils.inc | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/etc/inc/pfsense-utils.inc b/etc/inc/pfsense-utils.inc
+index 1c4936c..f86b673 100644
+--- a/etc/inc/pfsense-utils.inc
++++ b/etc/inc/pfsense-utils.inc
+@@ -2594,6 +2594,7 @@ function get_locale_list() {
+ 		"en_US" => gettext("English"),
+ 		"pt_BR" => gettext("Portuguese (Brazil)"),
+ 		"tr" => gettext("Turkish"),
++		"vi" => gettext("TiengViet"),    //Bổ sung tùy chọn tiếng Việt, phù hợp với thư mục /usr/local/share/locale/vi/
+ 	);
+ 	asort($locales);
+ 	return $locales;
+@@ -2654,6 +2655,7 @@ $g_languages = array (
+ 	"es"    => array("codeset" => "UTF-8", "desc" => gettext("Spanish")),
+ 	"sv"    => array("codeset" => "UTF-8", "desc" => gettext("Swedish")),
+ 	"sk"    => array("codeset" => "UTF-8", "desc" => gettext("Slovak")),
++	"vi"    => array("codeset" => "UTF-8", "desc" => gettext("TiengViet")),
+ 	"cs"    => array("codeset" => "UTF-8", "desc" => gettext("Czech"))
+ );
+ 
+-- 
+1.9.1
+
