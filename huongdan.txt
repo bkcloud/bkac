@@ -29,9 +29,12 @@ Về cơ bản, để cài đặt BKAC, cần tiến hành các bước như sau
 ------------------------------------- 
 2.Patch các thay đổi mã nguồn để có phiên bản BKAC
 -------------------------------------
+Lưu ý: Các file patch được cung cấp sẵn trong các branch có tên Release-x
+Còn các branch khác chỉ chứa mã nguồn, kể cả branch master.
+ 
  - Các file patch có thể sự sinh ra trên git, thông qua lệnh 
       git format-patch 17f27b099b6fded5879b76ecb0237093a3a5133e
-   hoặc đã có sẵn trên git tại branch có tên huong-dan và năm trong thư mục
+   hoặc đã có sẵn trên git tại branch có tên release-x và năm trong thư mục
    huongdan
 
  - Sử dụng SSH để truy cập vào máy tính cài đặt pfSense với tài khoản mặc định
