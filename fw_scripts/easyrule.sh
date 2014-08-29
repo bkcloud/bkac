@@ -1,4 +1,7 @@
 !/bin/bash
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Nguyên lý
@@ -35,5 +38,5 @@ echo "syntax: <action> <interface> <protocol> <src ip> <dst ip>"
 cmd="easyrule $action $interface $proto $src_ip $dst_ip $dst_port"
 
 echo $cmd                                                    # Hiển thị lệnh
-echo $firewall_ssh_port $firewall_user@$firewall_ip \"$cmd\" # Thực hiện lệnh
+ssh -p  $firewall_ssh_port $firewall_user@$firewall_ip \"$cmd\" # Thực hiện lệnh
 
